@@ -1,0 +1,7 @@
+#!/bin/bash
+cd /home/user/PX4-Autopilot
+export DISPLAY=host.docker.internal:0
+export QT_X11_NO_MITSHM=1
+export LIBGL_ALWAYS_SOFTWARE=1
+export GZ_RENDER_ENGINE=ogre
+make px4_sitl gz_x500
