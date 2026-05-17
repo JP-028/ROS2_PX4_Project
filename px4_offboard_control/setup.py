@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': ['cmd_vel_offboard_node = px4_offboard_control.cmd_vel_offboard_node:main',
+'keyboard_cmd_vel_node = px4_offboard_control.keyboard_cmd_vel_node:main',
         ],
     },
 )
