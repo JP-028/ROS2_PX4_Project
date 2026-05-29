@@ -98,3 +98,19 @@ Use this after Terminal 1, Terminal 2 and Terminal 3 are running:
     cd /home/user/ros2_ws/ROS2_PX4_Project
     ./scripts/version_2/start_circle_flight.sh
 
+
+## Optional square flight
+
+Use this after Terminal 1, Terminal 2, Terminal 3 and Terminal 6 are running.
+
+Do not run it together with keyboard control or circle flight.
+
+From Windows PowerShell:
+
+    docker exec -it px4_ros2_container bash
+
+Then inside the container:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/start_square_flight.sh
+
