@@ -14,22 +14,28 @@ class SquareFlightNode(Node):
 
         self.publisher = self.create_publisher(Twist, "/cmd_vel", 10)
 
-        self.side_length = 3.0
-        self.forward_speed = 0.6
+        # Target: square path with 5 m side length
+        self.side_length = 5.0
 
-        self.yaw_speed = math.pi / 4.0      # 45 deg/s
+        # Low speed to reduce pitch angle and keep front camera usable
+        self.forward_speed = 0.3
+
+        # Slower yaw for smoother turns
+        self.yaw_speed = math.pi / 8.0      # 22.5 deg/s
         self.turn_angle = math.pi / 2.0     # 90 deg
 
         self.forward_duration = self.side_length / self.forward_speed
         self.turn_duration = self.turn_angle / self.yaw_speed
 
-        self.pause_duration = 0.7
+        self.takeoff_duration = 3.0
+        self.pause_duration = 1.0
+        self.final_stop_duration = 2.0
 
         self.publish_rate = 20.0
         self.dt = 1.0 / self.publish_rate
 
         self.phases = [
-            ("takeoff", 0.0, 0.0, 0.5, 0.0, 3.0),
+            ("takeoff", 0.0, 0.0, 0.5, 0.0, self.takeoff_duration),
             ("pause_after_takeoff", 0.0, 0.0, 0.0, 0.0, self.pause_duration),
 
             ("side_1_forward", self.forward_speed, 0.0, 0.0, 0.0, self.forward_duration),
@@ -48,7 +54,7 @@ class SquareFlightNode(Node):
             ("pause_6", 0.0, 0.0, 0.0, 0.0, self.pause_duration),
 
             ("side_4_forward", self.forward_speed, 0.0, 0.0, 0.0, self.forward_duration),
-            ("final_stop", 0.0, 0.0, 0.0, 0.0, 2.0),
+            ("final_stop", 0.0, 0.0, 0.0, 0.0, self.final_stop_duration),
         ]
 
         self.phase_index = 0
@@ -57,12 +63,13 @@ class SquareFlightNode(Node):
 
         self.timer = self.create_timer(self.dt, self.timer_callback)
 
-        self.get_logger().info("Square Flight Node gestartet")
-        self.get_logger().info("Klassischer Ablauf:")
-        self.get_logger().info("geradeaus -> 90 Grad links -> geradeaus -> 90 Grad links ...")
-        self.get_logger().info(f"Seitenlänge: {self.side_length:.2f} m")
+        self.get_logger().info("Square Flight Node started")
+        self.get_logger().info("Target: 5 m side length square path")
+        self.get_logger().info("Low-speed velocity-based maneuver for front camera visibility")
+        self.get_logger().info(f"Side length: {self.side_length:.2f} m")
         self.get_logger().info(f"Forward speed: {self.forward_speed:.2f} m/s")
-        self.get_logger().info(f"Forward duration: {self.forward_duration:.2f} s")
+        self.get_logger().info(f"Forward duration per side: {self.forward_duration:.2f} s")
+        self.get_logger().info(f"Yaw speed: {self.yaw_speed:.3f} rad/s")
         self.get_logger().info(f"Turn duration: {self.turn_duration:.2f} s")
 
     def publish_cmd(self, x=0.0, y=0.0, z=0.0, yaw=0.0):
@@ -79,7 +86,7 @@ class SquareFlightNode(Node):
 
         if self.phase_index >= len(self.phases):
             self.publish_cmd()
-            self.get_logger().info("Quadratflug beendet.")
+            self.get_logger().info("Square flight finished.")
             self.finished = True
             return
 
@@ -90,14 +97,14 @@ class SquareFlightNode(Node):
 
         if elapsed >= duration:
             self.publish_cmd()
-            self.get_logger().info(f"Phase fertig: {phase_name}")
+            self.get_logger().info(f"Phase finished: {phase_name}")
 
             self.phase_index += 1
             self.phase_start_time = time.time()
 
             if self.phase_index < len(self.phases):
                 next_phase = self.phases[self.phase_index][0]
-                self.get_logger().info(f"Wechsel zu: {next_phase}")
+                self.get_logger().info(f"Switching to: {next_phase}")
 
 
 def main(args=None):
@@ -109,7 +116,7 @@ def main(args=None):
         while rclpy.ok() and not node.finished:
             rclpy.spin_once(node, timeout_sec=0.1)
     except KeyboardInterrupt:
-        node.get_logger().info("Square Flight manuell beendet.")
+        node.get_logger().info("Square Flight stopped manually.")
     finally:
         if rclpy.ok():
             node.publish_cmd()

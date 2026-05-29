@@ -14,12 +14,12 @@ class CircleFlightNode(Node):
 
         self.publisher = self.create_publisher(Twist, "/cmd_vel", 10)
 
-        # Circle settings
-        self.diameter = 3.0                 # meters
-        self.radius = self.diameter / 2.0   # 1.5 m
+        # Target: circle path with 5 m diameter
+        self.diameter = 5.0
+        self.radius = self.diameter / 2.0
 
-        # Low speed for stable flight and front camera visibility
-        self.forward_speed = 0.4            # m/s
+        # Low speed to reduce pitch angle and keep front camera usable
+        self.forward_speed = 0.3
 
         # Circle relation: yaw_rate = v / r
         self.yaw_rate = self.forward_speed / self.radius
@@ -41,6 +41,8 @@ class CircleFlightNode(Node):
         self.timer = self.create_timer(self.dt, self.timer_callback)
 
         self.get_logger().info("Circle Flight Node started")
+        self.get_logger().info("Target: 5 m diameter circle path")
+        self.get_logger().info("Low-speed velocity-based maneuver for front camera visibility")
         self.get_logger().info(f"Target diameter: {self.diameter:.2f} m")
         self.get_logger().info(f"Radius: {self.radius:.2f} m")
         self.get_logger().info(f"Forward speed: {self.forward_speed:.2f} m/s")
@@ -67,7 +69,6 @@ class CircleFlightNode(Node):
         elapsed = time.time() - self.phase_start_time
 
         if self.phase == "takeoff":
-            # climb / stabilize
             self.publish_cmd(z=0.5)
 
             if elapsed >= self.takeoff_duration:
@@ -81,8 +82,6 @@ class CircleFlightNode(Node):
                 self.switch_phase("circle")
 
         elif self.phase == "circle":
-            # Constant forward velocity + constant yaw rate
-            # This creates a circular path if /cmd_vel linear.x is interpreted in body frame.
             self.publish_cmd(
                 x=self.forward_speed,
                 y=0.0,
