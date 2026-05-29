@@ -147,3 +147,16 @@ For rqt_image_view, run:
     ./scripts/version_2/open_camera_view.sh
 
 Then select either the front camera topic or the down camera topic in the GUI.
+
+## Stop all v2 processes
+
+From Windows PowerShell:
+
+    docker exec -it px4_ros2_container bash
+
+Then inside the container:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/stop_all_v2.sh
+
+This stops keyboard control, circle flight, square flight, offboard bridge, camera bridges, rqt_image_view, MicroXRCEAgent, PX4 and Gazebo.
