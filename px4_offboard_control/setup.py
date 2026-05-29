@@ -26,6 +26,7 @@ setup(
         'console_scripts': ['cmd_vel_offboard_node = px4_offboard_control.cmd_vel_offboard_node:main',
 'keyboard_cmd_vel_node = px4_offboard_control.keyboard_cmd_vel_node:main',
 'square_flight_node = px4_offboard_control.square_flight_node:main',
+'circle_flight_node = px4_offboard_control.circle_flight_node:main',
         ],
     },
 )
