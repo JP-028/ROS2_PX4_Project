@@ -160,3 +160,35 @@ Then inside the container:
     ./scripts/version_2/stop_all_v2.sh
 
 This stops keyboard control, circle flight, square flight, offboard bridge, camera bridges, rqt_image_view, MicroXRCEAgent, PX4 and Gazebo.
+
+## TF broadcaster
+
+Use this after PX4, MicroXRCEAgent and the `/fmu/out/vehicle_odometry` topic are running.
+
+From Windows PowerShell:
+
+    docker exec -it px4_ros2_container bash
+
+Then inside the container:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/start_tf_broadcaster.sh
+
+Expected TF tree:
+
+    map
+    └── odom
+        └── base_link
+            ├── front_camera_link
+            └── down_camera_link
+
+Check dynamic transform:
+
+    ros2 run tf2_ros tf2_echo odom base_link
+
+Check static transforms:
+
+    ros2 run tf2_ros tf2_echo map odom
+    ros2 run tf2_ros tf2_echo base_link front_camera_link
+    ros2 run tf2_ros tf2_echo base_link down_camera_link
+

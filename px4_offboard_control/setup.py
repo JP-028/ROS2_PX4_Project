@@ -27,6 +27,7 @@ setup(
 'keyboard_cmd_vel_node = px4_offboard_control.keyboard_cmd_vel_node:main',
 'square_flight_node = px4_offboard_control.square_flight_node:main',
 'circle_flight_node = px4_offboard_control.circle_flight_node:main',
+'uav_tf_broadcaster_node = px4_offboard_control.uav_tf_broadcaster_node:main',
         ],
     },
 )
