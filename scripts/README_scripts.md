@@ -114,3 +114,36 @@ Then inside the container:
     cd /home/user/ros2_ws/ROS2_PX4_Project
     ./scripts/version_2/start_square_flight.sh
 
+
+## Dual camera bridge
+
+Use this after Terminal 1 and Terminal 2 are running.
+
+From Windows PowerShell:
+
+    docker exec -it px4_ros2_container bash
+
+Then inside the container:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/start_camera_bridges_dual.sh
+
+Check both camera feeds in another terminal:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/check_camera_feeds_dual.sh
+
+Front camera topic:
+
+    /world/default/model/x500_dual_cam_0/link/camera_link/sensor/camera/image
+
+Down camera topic:
+
+    /world/default/model/x500_dual_cam_0/link/down_camera_link/sensor/down_camera/image
+
+For rqt_image_view, run:
+
+    cd /home/user/ros2_ws/ROS2_PX4_Project
+    ./scripts/version_2/open_camera_view.sh
+
+Then select either the front camera topic or the down camera topic in the GUI.
