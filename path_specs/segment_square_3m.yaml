@@ -1,0 +1,44 @@
+name: segment_square_3m
+type: segment_path
+
+description: Full 3 meter square as a generic segment path.
+
+motion_defaults:
+  speed_m_s: 0.10
+  max_speed_m_s: 0.25
+  vertical_speed_m_s: 0.15
+
+  command_frame: local
+
+  kp_xy: 0.45
+  kp_z: 0.40
+
+  position_tolerance_m: 0.18
+  segment_timeout_factor: 4.0
+  corner_hold_s: 0.8
+  finish_hold_s: 1.0
+
+path:
+  - move: forward
+    distance_m: 3.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 3.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 3.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 3.0
+
+  - turn: left
+    angle_deg: 90

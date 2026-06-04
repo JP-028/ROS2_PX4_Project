@@ -1,0 +1,39 @@
+name: segment_custom_test
+type: segment_path
+
+description: Example custom path created only from generic segment commands.
+
+motion_defaults:
+  speed_m_s: 0.12
+  max_speed_m_s: 0.25
+  vertical_speed_m_s: 0.15
+  step_size_m: 0.02
+
+  command_frame: local
+
+  lookahead_m: 0.35
+  goal_tolerance_m: 0.25
+
+  kp_xy: 0.60
+  kp_z: 0.50
+  k_yaw: 0.0
+  yaw_rate_deg_s: 0.0
+
+  max_runtime_s: 120.0
+  finish_hold_s: 1.0
+
+path:
+  - move: forward
+    distance_m: 2.0
+
+  - turn: left
+    angle_deg: 45
+
+  - move: forward
+    distance_m: 1.5
+
+  - move: up
+    distance_m: 0.5
+
+  - hold:
+      duration_s: 2.0

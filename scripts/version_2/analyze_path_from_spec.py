@@ -556,5 +556,21 @@ def main():
         rclpy.shutdown()
 
 
+
+# ---------------------------------------------------------------------------
+# Generic segment_path support injected for local-pose abstraction branch.
+# This overrides generate_ideal_path so analysis and flight execution can use
+# the same path specification logic from path_spec_tools.py.
+# ---------------------------------------------------------------------------
+import sys as _sys_for_path_tools
+from pathlib import Path as _Path_for_path_tools
+
+_script_dir_for_path_tools = _Path_for_path_tools(__file__).resolve().parent
+if str(_script_dir_for_path_tools) not in _sys_for_path_tools.path:
+    _sys_for_path_tools.path.insert(0, str(_script_dir_for_path_tools))
+
+from path_spec_tools import generate_ideal_path as generate_ideal_path
+
+
 if __name__ == "__main__":
     main()
