@@ -231,13 +231,14 @@ class PathAnalyzer(Node):
         max_error_percent = 100.0 * max_error_m / reference_size
         median_error_percent = 100.0 * median_error_m / reference_size
 
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        prefix = out_dir / f"{self.args.mode}_path_analysis_{timestamp}"
+        timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        run_dir = out_dir / f"{timestamp}_{self.args.mode}"
+        run_dir.mkdir(parents=True, exist_ok=True)
 
-        csv_path = str(prefix) + ".csv"
-        ideal_csv_path = str(prefix) + "_ideal.csv"
-        report_path = str(prefix) + ".txt"
-        svg_path = str(prefix) + ".svg"
+        csv_path = str(run_dir / "actual_path.csv")
+        ideal_csv_path = str(run_dir / "ideal_path.csv")
+        report_path = str(run_dir / "path_analysis_report.txt")
+        svg_path = str(run_dir / "path_comparison.svg")
 
         csv_data = np.column_stack([t, actual_rel[:, 0], actual_rel[:, 1], data[:, 3]])
         np.savetxt(
