@@ -1,0 +1,12 @@
+name: square_3m
+type: square
+
+description: 3 meter square, left turns, relative to start pose.
+
+parameters:
+  side_length_m: 3.0
+  speed_m_s: 0.3
+  yaw_rate_deg_s: 22.5
+  direction: left
+  altitude_m: 0.0
+  samples_per_side: 250

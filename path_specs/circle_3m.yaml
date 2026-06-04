@@ -1,0 +1,11 @@
+name: circle_3m
+type: circle
+
+description: 3 meter diameter circle, counter-clockwise, relative to start pose.
+
+parameters:
+  diameter_m: 3.0
+  speed_m_s: 0.3
+  direction: ccw
+  altitude_m: 0.0
+  samples: 1000
