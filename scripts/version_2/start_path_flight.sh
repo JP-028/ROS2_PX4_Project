@@ -24,13 +24,14 @@ source /home/user/ros2_ws/install/setup.bash 2>/dev/null || true
 
 cd /home/user/ros2_ws/ROS2_PX4_Project
 
-echo "[INFO] Executing flight path from YAML spec:"
+echo "[INFO] Executing YAML flight using /uav/local_pose:"
 echo "       $SPEC_FILE"
 echo
 echo "[INFO] Required before running this:"
 echo "       1. start_agent.sh"
 echo "       2. sim_environment_menu.sh"
 echo "       3. start_offboard_control.sh"
+echo "       4. start_local_pose_from_px4.sh or another /uav/local_pose provider"
 echo
 
-./scripts/version_2/execute_path_from_spec.py "$SPEC_FILE"
+./scripts/version_2/execute_path_from_local_pose.py "$SPEC_FILE"
