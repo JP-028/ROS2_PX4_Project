@@ -7,6 +7,101 @@ import sys
 from pathlib import Path
 
 
+def _clean_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_").replace("-", "_")
+
+
+def _is_time_like(name: str) -> bool:
+    n = _clean_name(name)
+    time_tokens = [
+        "time", "timestamp", "stamp", "elapsed", "duration",
+        "sample", "index", "seq", "frame", "nanosec", "nsec", "sec"
+    ]
+    return any(tok in n for tok in time_tokens)
+
+
+def _is_numeric(value) -> bool:
+    try:
+        v = float(value)
+        return math.isfinite(v)
+    except Exception:
+        return False
+
+
+def _numeric_columns(rows, fields):
+    numeric_cols = []
+    for f in fields:
+        count = 0
+        for row in rows[:20]:
+            if _is_numeric(row.get(f, "")):
+                count += 1
+        if count > 0:
+            numeric_cols.append(f)
+    return numeric_cols
+
+
+def _pick_axis_column(fields, axis):
+    """
+    Robustly pick x/y/z columns from different possible CSV header styles.
+
+    Supported examples:
+      x, y, z
+      pos_x, pos_y, pos_z
+      position_x, position_y, position_z
+      position_x_m, position_y_m, position_z_m
+      actual_x, actual_y, actual_z
+      ideal_x, ideal_y, ideal_z
+      odom_x, odom_y, odom_z
+      local_x, local_y, local_z
+    """
+    axis = axis.lower()
+    cleaned = {f: _clean_name(f) for f in fields}
+
+    exact_candidates = [
+        axis,
+        f"{axis}_m",
+        f"{axis}_meter",
+        f"pos_{axis}",
+        f"pos_{axis}_m",
+        f"position_{axis}",
+        f"position_{axis}_m",
+        f"actual_{axis}",
+        f"actual_{axis}_m",
+        f"ideal_{axis}",
+        f"ideal_{axis}_m",
+        f"odom_{axis}",
+        f"odom_{axis}_m",
+        f"local_{axis}",
+        f"local_{axis}_m",
+        f"world_{axis}",
+        f"world_{axis}_m",
+        f"px4_{axis}",
+        f"px4_{axis}_m",
+    ]
+
+    for f, n in cleaned.items():
+        if n in exact_candidates:
+            return f
+
+    # Match names ending in _x, _y, _z or containing position_x etc.
+    suffix_patterns = [
+        f"_{axis}",
+        f"_{axis}_m",
+        f"_{axis}_meter",
+    ]
+    semantic_tokens = ["pos", "position", "actual", "ideal", "odom", "local", "world", "px4"]
+
+    for f, n in cleaned.items():
+        if _is_time_like(n):
+            continue
+        if any(n.endswith(pat) for pat in suffix_patterns):
+            return f
+        if any(tok in n for tok in semantic_tokens) and f"_{axis}" in n:
+            return f
+
+    return None
+
+
 def read_csv_points(path: Path):
     if not path.exists():
         return []
@@ -17,39 +112,42 @@ def read_csv_points(path: Path):
             return []
 
         fields = [c.strip() for c in reader.fieldnames]
+        rows = list(reader)
 
-        def pick(candidates):
-            for c in candidates:
-                if c in fields:
-                    return c
-            lower_map = {c.lower(): c for c in fields}
-            for c in candidates:
-                if c.lower() in lower_map:
-                    return lower_map[c.lower()]
-            return None
+    if not rows:
+        return []
 
-        x_key = pick(["x", "pos_x", "position_x", "local_x"])
-        y_key = pick(["y", "pos_y", "position_y", "local_y"])
-        z_key = pick(["z", "pos_z", "position_z", "local_z"])
+    x_key = _pick_axis_column(fields, "x")
+    y_key = _pick_axis_column(fields, "y")
+    z_key = _pick_axis_column(fields, "z")
 
-        if x_key is None or y_key is None:
-            possible = [c for c in fields if c.lower() not in ("time", "timestamp", "t", "sec", "nanosec")]
-            if len(possible) >= 2:
-                x_key, y_key = possible[0], possible[1]
-                z_key = possible[2] if len(possible) >= 3 else None
-            else:
-                return []
+    # Fallback: choose first 2 or 3 numeric non-time columns.
+    # This prevents using elapsed/time as x, which caused huge fake paths.
+    if x_key is None or y_key is None:
+        numeric_cols = _numeric_columns(rows, fields)
+        non_time_numeric = [c for c in numeric_cols if not _is_time_like(c)]
 
-        pts = []
-        for row in reader:
-            try:
-                x = float(row[x_key])
-                y = float(row[y_key])
-                z = float(row[z_key]) if z_key and row.get(z_key, "") not in ("", None) else 0.0
-                if math.isfinite(x) and math.isfinite(y) and math.isfinite(z):
-                    pts.append([x, y, z])
-            except Exception:
-                continue
+        if len(non_time_numeric) >= 2:
+            x_key = non_time_numeric[0]
+            y_key = non_time_numeric[1]
+            z_key = non_time_numeric[2] if len(non_time_numeric) >= 3 else None
+        else:
+            print(f"[WARN] Could not identify x/y columns in {path}")
+            print(f"[WARN] Header was: {fields}")
+            return []
+
+    print(f"[INFO] Reading {path.name}: x='{x_key}', y='{y_key}', z='{z_key}'")
+
+    pts = []
+    for row in rows:
+        try:
+            x = float(row[x_key])
+            y = float(row[y_key])
+            z = float(row[z_key]) if z_key and row.get(z_key, "") not in ("", None) else 0.0
+            if math.isfinite(x) and math.isfinite(y) and math.isfinite(z):
+                pts.append([x, y, z])
+        except Exception:
+            continue
 
     return pts
 
