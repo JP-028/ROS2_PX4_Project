@@ -5,3 +5,13 @@ log/
 __pycache__/
 My_new_repo/
 src/My_new_repo/
+
+# Experiment outputs
+path_analysis/
+batch_experiments/
+bags/
+rosbag/
+*.db3
+*.mcap
+*_backup_*.py
+*_backup_*.sh

@@ -1,0 +1,44 @@
+name: segment_square_20m
+type: segment_path
+
+description: Full 20 meter square path in open Gazebo environment using generic segment path execution.
+
+motion_defaults:
+  speed_m_s: 0.30
+  max_speed_m_s: 0.60
+  vertical_speed_m_s: 0.20
+
+  command_frame: local
+
+  kp_xy: 0.45
+  kp_z: 0.40
+
+  position_tolerance_m: 0.30
+  segment_timeout_factor: 4.0
+  corner_hold_s: 1.0
+  finish_hold_s: 1.0
+
+path:
+  - move: forward
+    distance_m: 20.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 20.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 20.0
+
+  - turn: left
+    angle_deg: 90
+
+  - move: forward
+    distance_m: 20.0
+
+  - turn: left
+    angle_deg: 90
