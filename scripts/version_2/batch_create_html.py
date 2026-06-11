@@ -13,11 +13,10 @@ def _clean_name(name: str) -> str:
 
 def _is_time_like(name: str) -> bool:
     n = _clean_name(name)
-    time_tokens = [
+    return any(tok in n for tok in [
         "time", "timestamp", "stamp", "elapsed", "duration",
         "sample", "index", "seq", "frame", "nanosec", "nsec", "sec"
-    ]
-    return any(tok in n for tok in time_tokens)
+    ])
 
 
 def _is_numeric(value) -> bool:
@@ -29,31 +28,18 @@ def _is_numeric(value) -> bool:
 
 
 def _numeric_columns(rows, fields):
-    numeric_cols = []
+    cols = []
     for f in fields:
         count = 0
         for row in rows[:20]:
             if _is_numeric(row.get(f, "")):
                 count += 1
         if count > 0:
-            numeric_cols.append(f)
-    return numeric_cols
+            cols.append(f)
+    return cols
 
 
 def _pick_axis_column(fields, axis):
-    """
-    Robustly pick x/y/z columns from different possible CSV header styles.
-
-    Supported examples:
-      x, y, z
-      pos_x, pos_y, pos_z
-      position_x, position_y, position_z
-      position_x_m, position_y_m, position_z_m
-      actual_x, actual_y, actual_z
-      ideal_x, ideal_y, ideal_z
-      odom_x, odom_y, odom_z
-      local_x, local_y, local_z
-    """
     axis = axis.lower()
     cleaned = {f: _clean_name(f) for f in fields}
 
@@ -83,12 +69,7 @@ def _pick_axis_column(fields, axis):
         if n in exact_candidates:
             return f
 
-    # Match names ending in _x, _y, _z or containing position_x etc.
-    suffix_patterns = [
-        f"_{axis}",
-        f"_{axis}_m",
-        f"_{axis}_meter",
-    ]
+    suffix_patterns = [f"_{axis}", f"_{axis}_m", f"_{axis}_meter"]
     semantic_tokens = ["pos", "position", "actual", "ideal", "odom", "local", "world", "px4"]
 
     for f, n in cleaned.items():
@@ -121,8 +102,6 @@ def read_csv_points(path: Path):
     y_key = _pick_axis_column(fields, "y")
     z_key = _pick_axis_column(fields, "z")
 
-    # Fallback: choose first 2 or 3 numeric non-time columns.
-    # This prevents using elapsed/time as x, which caused huge fake paths.
     if x_key is None or y_key is None:
         numeric_cols = _numeric_columns(rows, fields)
         non_time_numeric = [c for c in numeric_cols if not _is_time_like(c)]
@@ -152,6 +131,13 @@ def read_csv_points(path: Path):
     return pts
 
 
+def read_int_file(path: Path, default=None):
+    try:
+        return int(path.read_text(encoding="utf-8", errors="replace").strip())
+    except Exception:
+        return default
+
+
 def dist(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2)
 
@@ -163,6 +149,12 @@ def cumulative_s(points):
     for i in range(1, len(points)):
         s.append(s[-1] + dist(points[i - 1], points[i]))
     return s
+
+
+def path_length(points):
+    if len(points) < 2:
+        return 0.0
+    return cumulative_s(points)[-1]
 
 
 def interp_polyline(points, n=300):
@@ -209,10 +201,19 @@ def nearest_dist_to_polyline(point, ref_points):
     return min(dist(point, p) for p in ref_points)
 
 
-def path_length(points):
-    if len(points) < 2:
-        return 0.0
-    return cumulative_s(points)[-1]
+def deviation_flags(points, ref_points, threshold_m):
+    deviations = []
+    flags = []
+
+    if not points or not ref_points:
+        return deviations, flags
+
+    for p in points:
+        d = nearest_dist_to_polyline(p, ref_points)
+        deviations.append(d)
+        flags.append(d is not None and d > threshold_m)
+
+    return deviations, flags
 
 
 def characteristic_size(points):
@@ -272,8 +273,8 @@ def js_trace(name, points, mode="lines", color=None, width=4, dash=None, visible
     }
 
 
-def js_marker(name, point, color=None, size=5):
-    marker = {"size": size}
+def js_marker(name, point, color=None, size=5, symbol="circle"):
+    marker = {"size": size, "symbol": symbol}
     if color:
         marker["color"] = color
 
@@ -286,6 +287,38 @@ def js_marker(name, point, color=None, size=5):
         "z": [point[2]],
         "marker": marker,
     }
+
+
+def classify_run(run_name, run_dir, actual, ideal_resampled, threshold_m, ideal_length):
+    reasons = []
+    flight_exit_code = read_int_file(run_dir / "flight_exit_code.txt", default=None)
+
+    if flight_exit_code is None:
+        reasons.append("missing flight_exit_code")
+    elif flight_exit_code != 0:
+        reasons.append(f"flight exit code {flight_exit_code}")
+
+    if not actual:
+        reasons.append("missing actual path")
+        return reasons
+
+    actual_length = path_length(actual)
+
+    if ideal_length > 1e-6 and actual_length < 0.80 * ideal_length:
+        reasons.append(f"path length too short ({actual_length:.2f} m < 80% of ideal {ideal_length:.2f} m)")
+
+    if ideal_resampled and actual:
+        end_error = dist(actual[-1], ideal_resampled[-1])
+        if end_error > max(2.0 * threshold_m, 0.25):
+            reasons.append(f"endpoint error too high ({end_error:.3f} m)")
+
+    # Placeholder for future real Gazebo collision logs:
+    # If a later script writes collision_events.csv, this will be marked automatically.
+    collision_file = run_dir / "collision_events.csv"
+    if collision_file.exists() and collision_file.stat().st_size > 0:
+        reasons.append("collision events recorded")
+
+    return reasons
 
 
 def main():
@@ -318,7 +351,7 @@ def main():
         if actual:
             run_data.append({
                 "name": run_dir.name,
-                "dir": str(run_dir),
+                "dir": run_dir,
                 "actual": actual,
                 "actual_length": path_length(actual),
             })
@@ -331,9 +364,15 @@ def main():
         sys.exit(1)
 
     if not ideal_points:
-        print("[WARN] No ideal_path.csv found. Average path will be shown without deviation-to-ideal coloring.")
+        print("[WARN] No ideal_path.csv found. Deviation coloring requires ideal_path.csv.")
 
     sample_count = 300
+    ideal_resampled = interp_polyline(ideal_points, sample_count) if ideal_points else []
+    ideal_length = path_length(ideal_points)
+
+    char_size = characteristic_size(ideal_points if ideal_points else run_data[0]["actual"])
+    threshold_m = char_size * (threshold_percent / 100.0)
+
     resampled_runs = [interp_polyline(r["actual"], sample_count) for r in run_data]
 
     average_path = []
@@ -347,47 +386,81 @@ def main():
             statistics.mean(zs),
         ])
 
-    ideal_resampled = interp_polyline(ideal_points, sample_count) if ideal_points else []
-    char_size = characteristic_size(ideal_points if ideal_points else average_path)
-    threshold_m = char_size * (threshold_percent / 100.0)
-
-    average_deviation = []
-    bad_flags = []
-
-    if ideal_resampled:
-        for p in average_path:
-            d = nearest_dist_to_polyline(p, ideal_resampled)
-            average_deviation.append(d)
-            bad_flags.append(d is not None and d > threshold_m)
-    else:
-        average_deviation = [0.0 for _ in average_path]
-        bad_flags = [False for _ in average_path]
-
-    bad_segments = split_bad_segments(average_path, bad_flags)
+    avg_deviation, avg_bad_flags = deviation_flags(average_path, ideal_resampled, threshold_m)
+    avg_bad_segments = split_bad_segments(average_path, avg_bad_flags)
 
     traces = []
+    problem_runs = []
+    run_deviation_stats = []
 
     if ideal_points:
         traces.append(js_trace("Ideal path", ideal_points, color="gray", width=5, dash="dash", visible=True))
 
     for r in run_data:
+        run_name = r["name"]
+        actual = r["actual"]
+
+        deviations, bad_flags = deviation_flags(actual, ideal_resampled, threshold_m)
+        bad_segments = split_bad_segments(actual, bad_flags)
+
+        max_dev = max(deviations) if deviations else 0.0
+        mean_dev = statistics.mean(deviations) if deviations else 0.0
+        bad_percent = 100.0 * sum(1 for b in bad_flags if b) / max(len(bad_flags), 1)
+
+        reasons = classify_run(run_name, r["dir"], actual, ideal_resampled, threshold_m, ideal_length)
+
+        run_deviation_stats.append({
+            "run": run_name,
+            "actual_length_m": r["actual_length"],
+            "mean_deviation_m": mean_dev,
+            "max_deviation_m": max_dev,
+            "samples_above_threshold_percent": bad_percent,
+            "problem_reasons": "; ".join(reasons),
+        })
+
+        if reasons:
+            problem_runs.append({
+                "run": run_name,
+                "reasons": reasons,
+                "last_point": actual[-1] if actual else None,
+            })
+
         traces.append(js_trace(
-            f"Actual {r['name']}",
-            r["actual"],
+            f"Actual {run_name}",
+            actual,
             color="blue",
             width=3,
             visible=True,
             opacity=0.45,
         ))
 
+        for idx, seg in enumerate(bad_segments, start=1):
+            traces.append(js_trace(
+                f"{run_name}: deviation > {threshold_percent:.1f}% segment {idx}",
+                seg,
+                color="red",
+                width=7,
+                visible=True,
+                opacity=0.95,
+            ))
+
+        if reasons and actual:
+            traces.append(js_marker(
+                f"{run_name}: problem / incomplete",
+                actual[-1],
+                color="red",
+                size=7,
+                symbol="x",
+            ))
+
     traces.append(js_trace("Average actual path", average_path, color="orange", width=7, visible=True))
 
-    for idx, seg in enumerate(bad_segments, start=1):
+    for idx, seg in enumerate(avg_bad_segments, start=1):
         traces.append(js_trace(
             f"Average deviation > {threshold_percent:.1f}% segment {idx}",
             seg,
-            color="red",
-            width=10,
+            color="darkred",
+            width=11,
             visible=True,
         ))
 
@@ -395,10 +468,9 @@ def main():
         traces.append(js_marker("Average start", average_path[0], color="green", size=5))
         traces.append(js_marker("Average end", average_path[-1], color="red", size=5))
 
-    mean_avg_dev = statistics.mean(average_deviation) if average_deviation else 0.0
-    max_avg_dev = max(average_deviation) if average_deviation else 0.0
-    bad_count = sum(1 for b in bad_flags if b)
-    bad_percent = 100.0 * bad_count / max(len(bad_flags), 1)
+    mean_avg_dev = statistics.mean(avg_deviation) if avg_deviation else 0.0
+    max_avg_dev = max(avg_deviation) if avg_deviation else 0.0
+    avg_bad_percent = 100.0 * sum(1 for b in avg_bad_flags if b) / max(len(avg_bad_flags), 1)
 
     run_lengths = [r["actual_length"] for r in run_data]
     html_path = summary_dir / "batch_paths_3d.html"
@@ -406,19 +478,38 @@ def main():
     summary = {
         "experiment_dir": str(experiment_dir),
         "run_count": len(run_data),
+        "problem_run_count": len(problem_runs),
         "threshold_percent": threshold_percent,
         "threshold_m": threshold_m,
         "characteristic_size_m": char_size,
         "average_path_mean_deviation_to_ideal_m": mean_avg_dev,
         "average_path_max_deviation_to_ideal_m": max_avg_dev,
-        "average_path_bad_sample_percent": bad_percent,
+        "average_path_bad_sample_percent": avg_bad_percent,
         "actual_path_length_mean_m": statistics.mean(run_lengths) if run_lengths else 0.0,
         "actual_path_length_std_m": statistics.stdev(run_lengths) if len(run_lengths) > 1 else 0.0,
         "actual_path_length_min_m": min(run_lengths) if run_lengths else 0.0,
         "actual_path_length_max_m": max(run_lengths) if run_lengths else 0.0,
+        "problem_runs": [
+            {"run": p["run"], "reasons": p["reasons"]} for p in problem_runs
+        ],
     }
 
     (summary_dir / "batch_visual_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    # Per-run deviation CSV
+    per_run_csv = summary_dir / "batch_run_deviation_stats.csv"
+    with per_run_csv.open("w", encoding="utf-8", newline="") as f:
+        fieldnames = [
+            "run",
+            "actual_length_m",
+            "mean_deviation_m",
+            "max_deviation_m",
+            "samples_above_threshold_percent",
+            "problem_reasons",
+        ]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(run_deviation_stats)
 
     report_path = summary_dir / "batch_visual_report.txt"
     with report_path.open("w", encoding="utf-8") as f:
@@ -426,25 +517,44 @@ def main():
         f.write("=============================\n\n")
         f.write(f"Experiment: {experiment_dir}\n")
         f.write(f"Runs included: {len(run_data)}\n")
+        f.write(f"Problem / incomplete runs: {len(problem_runs)}\n")
         f.write(f"Threshold: {threshold_percent:.2f}% of characteristic path size\n")
         f.write(f"Characteristic path size: {char_size:.3f} m\n")
         f.write(f"Threshold: {threshold_m:.3f} m\n\n")
+
         f.write("Average path deviation to ideal path:\n")
         f.write(f"  mean: {mean_avg_dev:.4f} m\n")
         f.write(f"  max:  {max_avg_dev:.4f} m\n")
-        f.write(f"  samples above threshold: {bad_percent:.2f}%\n\n")
+        f.write(f"  samples above threshold: {avg_bad_percent:.2f}%\n\n")
+
         f.write("Actual path length over all runs:\n")
         f.write(f"  mean: {summary['actual_path_length_mean_m']:.4f} m\n")
         f.write(f"  std:  {summary['actual_path_length_std_m']:.4f} m\n")
         f.write(f"  min:  {summary['actual_path_length_min_m']:.4f} m\n")
         f.write(f"  max:  {summary['actual_path_length_max_m']:.4f} m\n\n")
-        f.write("Generated HTML:\n")
-        f.write(f"  {html_path}\n\n")
-        f.write("Notes:\n")
-        f.write("- Blue lines: individual actual runs\n")
-        f.write("- Orange line: average actual path\n")
-        f.write("- Red line sections: average path deviation above threshold\n")
-        f.write("- The threshold is relative to the characteristic path size, not the full path length.\n")
+
+        if problem_runs:
+            f.write("Problem / incomplete runs:\n")
+            for p in problem_runs:
+                f.write(f"  {p['run']}: {', '.join(p['reasons'])}\n")
+            f.write("\n")
+
+        f.write("Generated files:\n")
+        f.write(f"  {html_path}\n")
+        f.write(f"  {report_path}\n")
+        f.write(f"  {summary_dir / 'batch_visual_summary.json'}\n")
+        f.write(f"  {per_run_csv}\n\n")
+
+        f.write("Legend:\n")
+        f.write("- Gray dashed: ideal path\n")
+        f.write("- Blue: individual actual runs\n")
+        f.write("- Red overlays: individual run sections above deviation threshold\n")
+        f.write("- Orange: average actual path\n")
+        f.write("- Dark red: average path sections above deviation threshold\n")
+        f.write("- Red X marker: problem / incomplete run endpoint\n")
+        f.write("\n")
+        f.write("Note: Real collision detection is only available after Gazebo collision-event logging is implemented.\n")
+        f.write("Currently, problem markers are based on flight exit code, too-short path length, endpoint error, or collision_events.csv if present.\n")
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -483,11 +593,12 @@ def main():
     <div class="small">
       Experiment: <code>{experiment_dir}</code><br>
       Runs included: <b>{len(run_data)}</b> |
+      Problem / incomplete runs: <b>{len(problem_runs)}</b> |
       Threshold: <b>{threshold_percent:.1f}%</b> of characteristic path size =
       <b>{threshold_m:.3f} m</b><br>
-      Mean average-path deviation: <b>{mean_avg_dev:.4f} m</b> |
-      Max average-path deviation: <b>{max_avg_dev:.4f} m</b> |
-      Samples above threshold: <b>{bad_percent:.2f}%</b><br>
+      Average path: mean deviation <b>{mean_avg_dev:.4f} m</b> |
+      max deviation <b>{max_avg_dev:.4f} m</b> |
+      samples above threshold <b>{avg_bad_percent:.2f}%</b><br>
       Legend entries can be clicked to hide/show individual runs.
     </div>
   </div>
@@ -509,7 +620,7 @@ def main():
         x: 1.02,
         y: 1.0
       }},
-      margin: {{l: 0, r: 280, b: 0, t: 0}},
+      margin: {{l: 0, r: 320, b: 0, t: 0}},
       hovermode: "closest"
     }};
 
@@ -521,10 +632,11 @@ def main():
 
     html_path.write_text(html, encoding="utf-8")
 
-    print("[OK] Batch 3D HTML created:")
+    print("[OK] Batch 3D HTML created with problem/deviation marking:")
     print(f"     {html_path}")
     print(f"     {report_path}")
     print(f"     {summary_dir / 'batch_visual_summary.json'}")
+    print(f"     {per_run_csv}")
 
 
 if __name__ == "__main__":
