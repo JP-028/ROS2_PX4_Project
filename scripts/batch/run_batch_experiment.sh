@@ -32,7 +32,7 @@ echo "[CHECK] Checking /uav/local_pose..."
 if ! timeout 4s ros2 topic echo /uav/local_pose --once >/tmp/batch_local_pose_check.txt 2>/tmp/batch_local_pose_check.err; then
   echo "[ERROR] No /uav/local_pose received."
   echo "Start first in another terminal:"
-  echo "  ./scripts/version_2/start_local_pose_from_px4.sh"
+  echo "  ./scripts/control/start_local_pose_from_px4.sh"
   exit 1
 fi
 echo "[OK] /uav/local_pose is available."
@@ -220,7 +220,7 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
   fi
 
   echo "[INFO] Starting analyzer..."
-  python3 scripts/version_2/analyze_path_from_spec.py "$YAML_FILE" \
+  python3 scripts/analysis/analyze_path_from_spec.py "$YAML_FILE" \
     > "$RUN_DIR/logs/analyzer.log" 2>&1 &
 
   ANALYZER_PID=$!
@@ -228,7 +228,7 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
   sleep 3
 
   echo "[INFO] Executing flight..."
-  python3 scripts/version_2/execute_path_from_local_pose.py "$YAML_FILE" \
+  python3 scripts/flight/execute_path_from_local_pose.py "$YAML_FILE" \
     > "$RUN_DIR/logs/flight.log" 2>&1
 
   FLIGHT_EXIT_CODE=$?
@@ -280,7 +280,7 @@ echo "============================================================"
 echo " Creating batch summary"
 echo "============================================================"
 
-python3 scripts/version_2/batch_collect_summary.py "$EXPERIMENT_DIR" \
+python3 scripts/batch/batch_collect_summary.py "$EXPERIMENT_DIR" \
   > "$SUMMARY_DIR/batch_collect_summary.log" 2>&1
 
 cat "$SUMMARY_DIR/batch_collect_summary.log"
@@ -293,7 +293,7 @@ echo "============================================================"
 read -rp "Deviation warning threshold in percent of path size [default: 5]: " DEVIATION_THRESHOLD_PERCENT
 DEVIATION_THRESHOLD_PERCENT="${DEVIATION_THRESHOLD_PERCENT:-5}"
 
-python3 scripts/version_2/batch_create_html.py "$EXPERIMENT_DIR" "$DEVIATION_THRESHOLD_PERCENT" \
+python3 scripts/batch/batch_create_html.py "$EXPERIMENT_DIR" "$DEVIATION_THRESHOLD_PERCENT" \
   > "$SUMMARY_DIR/batch_create_html.log" 2>&1
 
 cat "$SUMMARY_DIR/batch_create_html.log"

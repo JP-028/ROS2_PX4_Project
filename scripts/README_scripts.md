@@ -38,24 +38,24 @@ Then run the matching command inside the container.
 ## Terminal 1 - MicroXRCEAgent
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_agent.sh
+    ./scripts/simulation/start_agent.sh
 
 ## Terminal 2 - PX4 SITL + Gazebo dual camera
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_px4_gazebo_dual_cam.sh
+    ./scripts/simulation/start_px4_gazebo_dual_cam.sh
 
 Wait until Gazebo opens and the drone is visible.
 
 ## Terminal 3 - Offboard control bridge
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_offboard_control.sh
+    ./scripts/control/start_offboard_control.sh
 
 ## Terminal 4 - Keyboard control
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_keyboard_control.sh
+    ./scripts/control/start_keyboard_control.sh
 
 Controls:
 
@@ -73,19 +73,19 @@ Controls:
 ## Terminal 5 - Front camera bridge
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_camera_bridge_front.sh
+    ./scripts/legacy/old/start_camera_bridge_front.sh
 
 ## Terminal 6 - Check front camera feed
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/check_camera_feed_front.sh
+    ./scripts/legacy/old/check_camera_feed_front.sh
 
 You should see an average rate.
 
 ## Terminal 7 - Open camera viewer
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/open_camera_view.sh
+    ./scripts/camera/open_camera_view.sh
 
 In the rqt_image_view window, select:
 
@@ -96,7 +96,7 @@ In the rqt_image_view window, select:
 Use this after Terminal 1, Terminal 2 and Terminal 3 are running:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_circle_flight.sh
+    ./scripts/flight/start_circle_flight.sh
 
 
 ## Optional square flight
@@ -112,7 +112,7 @@ From Windows PowerShell:
 Then inside the container:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_square_flight.sh
+    ./scripts/flight/start_square_flight.sh
 
 
 ## Dual camera bridge
@@ -126,12 +126,12 @@ From Windows PowerShell:
 Then inside the container:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_camera_bridges_dual.sh
+    ./scripts/legacy/old/start_camera_bridges_dual.sh
 
 Check both camera feeds in another terminal:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/check_camera_feeds_dual.sh
+    ./scripts/legacy/old/check_camera_feeds_dual.sh
 
 Front camera topic:
 
@@ -144,7 +144,7 @@ Down camera topic:
 For rqt_image_view, run:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/open_camera_view.sh
+    ./scripts/camera/open_camera_view.sh
 
 Then select either the front camera topic or the down camera topic in the GUI.
 
@@ -157,7 +157,7 @@ From Windows PowerShell:
 Then inside the container:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/stop_all_v2.sh
+    ./scripts/simulation/stop_all.sh
 
 This stops keyboard control, circle flight, square flight, offboard bridge, camera bridges, rqt_image_view, MicroXRCEAgent, PX4 and Gazebo.
 
@@ -172,7 +172,7 @@ From Windows PowerShell:
 Then inside the container:
 
     cd /home/user/ros2_ws/ROS2_PX4_Project
-    ./scripts/version_2/start_tf_broadcaster.sh
+    ./scripts/control/start_tf_broadcaster.sh
 
 Expected TF tree:
 

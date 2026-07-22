@@ -91,7 +91,7 @@ case "$ACTION" in
     echo "[INFO] In another terminal, start this menu again, select the same YAML, and choose:"
     echo "       Execute flight only"
     echo
-    ./scripts/version_2/start_path_analysis.sh "$REL_SELECTED_FILE"
+    ./scripts/analysis/start_path_analysis.sh "$REL_SELECTED_FILE"
     ;;
 
   2)
@@ -99,7 +99,7 @@ case "$ACTION" in
     echo "[INFO] Executing flight for:"
     echo "       $REL_SELECTED_FILE"
     echo
-    ./scripts/version_2/start_path_flight.sh "$REL_SELECTED_FILE"
+    ./scripts/flight/start_path_flight.sh "$REL_SELECTED_FILE"
     ;;
 
   3)
@@ -107,26 +107,26 @@ case "$ACTION" in
     echo "Required startup order:"
     echo
     echo "Terminal 1:"
-    echo "  ./scripts/version_2/start_agent.sh"
+    echo "  ./scripts/simulation/start_agent.sh"
     echo
     echo "Terminal 2:"
-    echo "  ./scripts/version_2/sim_environment_menu.sh"
+    echo "  ./scripts/simulation/sim_environment_menu.sh"
     echo
     echo "Terminal 3:"
-    echo "  ./scripts/version_2/start_camera_bridges_all_worlds.sh"
+    echo "  ./scripts/camera/start_camera_bridges_all_worlds.sh"
     echo
     echo "Terminal 4:"
-    echo "  ./scripts/version_2/start_tf_broadcaster.sh"
+    echo "  ./scripts/control/start_tf_broadcaster.sh"
     echo
     echo "Terminal 5:"
-    echo "  ./scripts/version_2/start_offboard_control.sh"
+    echo "  ./scripts/control/start_offboard_control.sh"
     echo
     echo "Terminal 6:"
-    echo "  ./scripts/version_2/path_workflow_menu.sh"
+    echo "  ./scripts/flight/path_workflow_menu.sh"
     echo "  Select YAML -> Start analyzer only"
     echo
     echo "Terminal 7:"
-    echo "  ./scripts/version_2/path_workflow_menu.sh"
+    echo "  ./scripts/flight/path_workflow_menu.sh"
     echo "  Select same YAML -> Execute flight only"
     echo
     ;;

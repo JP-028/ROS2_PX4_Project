@@ -5,7 +5,7 @@ This file explains how new UAV flight paths can be created, added, selected, exe
 
 The purpose of this system is to allow users to create new flight paths without editing the core execution scripts.
 
-Normal users should only create or edit YAML files inside the path_specs/ folder. The scripts inside scripts/version_2/ are part of the system logic and should not be changed for normal use.
+Normal users should only create or edit YAML files inside the path_specs/ folder. The scripts inside the scripts subdirectories are part of the system logic and should not be changed for normal use.
 
 
 1. Basic Concept
@@ -501,19 +501,19 @@ The basic system must be running first.
 Typical startup order:
 
 Terminal 1:
-./scripts/version_2/start_agent.sh
+./scripts/simulation/start_agent.sh
 
 Terminal 2:
-./scripts/version_2/sim_environment_menu.sh
+./scripts/simulation/sim_environment_menu.sh
 
 Terminal 3:
-./scripts/version_2/start_camera_bridges_all_worlds.sh
+./scripts/camera/start_camera_bridges_all_worlds.sh
 
 Terminal 4:
-./scripts/version_2/start_tf_broadcaster.sh
+./scripts/control/start_tf_broadcaster.sh
 
 Terminal 5:
-./scripts/version_2/start_offboard_control.sh
+./scripts/control/start_offboard_control.sh
 
 Then use the YAML path menu.
 
@@ -523,7 +523,7 @@ Then use the YAML path menu.
 
 Open a new terminal and run:
 
-./scripts/version_2/path_workflow_menu.sh
+./scripts/flight/path_workflow_menu.sh
 
 In the menu:
 
@@ -540,7 +540,7 @@ The analyzer should be started before the flight execution.
 
 Open another terminal and run:
 
-./scripts/version_2/path_workflow_menu.sh
+./scripts/flight/path_workflow_menu.sh
 
 In the menu:
 

@@ -7,8 +7,8 @@ if [ -z "$SPEC_FILE" ]; then
   echo "[ERROR] No YAML path specification provided."
   echo
   echo "Usage:"
-  echo "  ./scripts/version_2/start_path_flight.sh path_specs/circle_3m.yaml"
-  echo "  ./scripts/version_2/start_path_flight.sh path_specs/square_3m.yaml"
+  echo "  ./scripts/flight/start_path_flight.sh path_specs/circle_3m.yaml"
+  echo "  ./scripts/flight/start_path_flight.sh path_specs/square_3m.yaml"
   echo
   exit 1
 fi
@@ -34,4 +34,4 @@ echo "       3. start_offboard_control.sh"
 echo "       4. start_local_pose_from_px4.sh or another /uav/local_pose provider"
 echo
 
-./scripts/version_2/execute_path_from_local_pose.py "$SPEC_FILE"
+./scripts/flight/execute_path_from_local_pose.py "$SPEC_FILE"

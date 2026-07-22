@@ -13,4 +13,4 @@ echo
 echo "[INFO] Later this script can be replaced by a camera/grid/ToF-based pose estimator."
 echo
 
-./scripts/version_2/px4_odometry_to_local_pose.py
+./scripts/control/px4_odometry_to_local_pose.py
