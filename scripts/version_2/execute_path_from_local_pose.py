@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import math
+import signal
 import sys
 import time
 from pathlib import Path
@@ -70,9 +71,12 @@ class SegmentExecutor(Node):
 
         self.pose = None
         self.start_time = None
+        self.abort_requested = False
+        self.returning_home = False
 
         self.current_target = np.array([0.0, 0.0, 0.0])
         self.path_start_position = np.array([0.0, 0.0, 0.0])
+        self.path_start_yaw = 0.0
         self.current_heading = 0.0
 
         self.pub = self.create_publisher(Twist, "/cmd_vel", 10)
@@ -116,6 +120,12 @@ class SegmentExecutor(Node):
 
     def publish_stop(self):
         self.pub.publish(Twist())
+
+    def request_abort(self):
+        self.abort_requested = True
+        self.get_logger().warn(
+            "Flight abort requested. Returning to start position."
+        )
 
     def publish_velocity(self, v_local):
         if self.command_frame == "body":
@@ -167,6 +177,10 @@ class SegmentExecutor(Node):
         period = 1.0 / 30.0
 
         while rclpy.ok():
+            if self.abort_requested:
+                self.publish_stop()
+                return False
+
             rclpy.spin_once(self, timeout_sec=0.0)
 
             actual = self.current_position()
@@ -290,6 +304,10 @@ class SegmentExecutor(Node):
         period = 1.0 / 30.0
 
         while rclpy.ok():
+            if self.abort_requested:
+                self.publish_stop()
+                return False
+
             rclpy.spin_once(self, timeout_sec=0.0)
 
             elapsed = time.time() - start_time
@@ -354,12 +372,83 @@ class SegmentExecutor(Node):
         self.hold_position(duration)
         return True
 
+    def rotate_to_yaw(self, target_yaw):
+        yaw_tolerance = math.radians(2.0)
+        kp_yaw = 1.0
+        max_yaw_rate = math.radians(30.0)
+
+        self.get_logger().info(
+            f"Rotating to start yaw: {math.degrees(target_yaw):.1f} deg"
+        )
+
+        while rclpy.ok():
+            rclpy.spin_once(self, timeout_sec=0.0)
+
+            current_yaw = self.current_yaw()
+            error = wrap_angle(target_yaw - current_yaw)
+
+            if abs(error) <= yaw_tolerance:
+                self.publish_stop()
+                self.get_logger().info(
+                    f"Start yaw restored. Error={math.degrees(error):.2f} deg"
+                )
+                return True
+
+            yaw_rate = clamp(
+                kp_yaw * error,
+                -max_yaw_rate,
+                max_yaw_rate,
+            )
+
+            msg = Twist()
+            msg.angular.z = float(yaw_rate)
+            self.pub.publish(msg)
+
+            time.sleep(1.0 / 30.0)
+
+        return False
+
+    def return_to_start(self):
+        if self.pose is None:
+            self.get_logger().warn("Cannot return to start: no pose available.")
+            return False
+
+        self.returning_home = True
+        self.abort_requested = False
+
+        self.get_logger().info(
+            "Returning to path start position: "
+            f"({self.path_start_position[0]:.3f}, "
+            f"{self.path_start_position[1]:.3f}, "
+            f"{self.path_start_position[2]:.3f})"
+        )
+
+        try:
+            ok = self.move_to_target(
+                self.path_start_position,
+                nominal_direction=None,
+                nominal_speed=self.speed,
+            )
+
+            self.publish_stop()
+            self.hold_position(self.finish_hold_s)
+
+            if ok:
+                self.get_logger().info("Returned to path start position.")
+            else:
+                self.get_logger().warn("Return to start finished with timeout.")
+
+            return ok
+        finally:
+            self.returning_home = False
+
     def run(self):
         self.wait_for_pose()
 
         # The YAML path is relative to the UAV position at execution start.
         # This avoids depending on an absolute /uav/local_pose origin.
         self.path_start_position = self.current_position().copy()
+        self.path_start_yaw = self.current_yaw()
         self.current_target = self.path_start_position.copy()
         self.current_heading = 0.0
 
@@ -371,6 +460,10 @@ class SegmentExecutor(Node):
         )
 
         for i, item in enumerate(self.path_items, start=1):
+            if self.abort_requested:
+                self.get_logger().warn("Path execution aborted.")
+                break
+
             self.get_logger().info(f"Executing segment {i}: {item}")
 
             if "move" in item:
@@ -384,8 +477,18 @@ class SegmentExecutor(Node):
             else:
                 raise ValueError(f"Unsupported path item: {item}")
 
+            if self.abort_requested:
+                self.get_logger().warn("Path execution aborted.")
+                break
+
         self.hold_position(self.finish_hold_s)
-        self.get_logger().info("Generic segment path finished.")
+
+        if self.abort_requested:
+            self.get_logger().warn("Generic segment path aborted.")
+        else:
+            self.get_logger().info("Generic segment path finished.")
+
+        self.return_to_start()
 
 
 def main():
@@ -403,8 +506,26 @@ def main():
     rclpy.init()
     node = SegmentExecutor(spec)
 
+    def handle_sigint(signum, frame):
+        if node.returning_home:
+            print("\n[INFO] Ctrl+C received during return-to-start. Stopping immediately.")
+            node.publish_stop()
+            raise KeyboardInterrupt
+
+        if node.abort_requested:
+            print("\n[INFO] Second Ctrl+C received. Stopping immediately.")
+            node.publish_stop()
+            raise KeyboardInterrupt
+
+        print("\n[INFO] Ctrl+C received. Aborting path and returning to start.")
+        node.request_abort()
+
+    signal.signal(signal.SIGINT, handle_sigint)
+
     try:
         node.run()
+    except KeyboardInterrupt:
+        node.publish_stop()
     finally:
         node.destroy_node()
         rclpy.shutdown()

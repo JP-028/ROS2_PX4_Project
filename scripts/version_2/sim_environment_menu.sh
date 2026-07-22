@@ -75,7 +75,7 @@ export GZ_RENDER_ENGINE=ogre
 export GZ_SIM_RESOURCE_PATH=$ASSET_DIR:$ASSET_DIR/models:$ASSET_DIR/worlds:$PX4_DIR/Tools/simulation/gz/models:$PX4_DIR/Tools/simulation/gz/worlds:$GZ_SIM_RESOURCE_PATH
 
 export PX4_GZ_WORLD="$ENV_NAME"
-export PX4_GZ_MODEL_POSE="${PX4_GZ_MODEL_POSE:-0,0,0.15,0,0,0}"
+export PX4_GZ_MODEL_POSE="${PX4_GZ_MODEL_POSE:-0,-5.5,0.15,0,0,-1.5708}"
 
 cd "$PX4_DIR"
 
