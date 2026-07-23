@@ -1,0 +1,29 @@
+name: segment_circle_inside_vases
+type: segment_path
+
+description: Full circle around the center of the vase ring.
+
+motion_defaults:
+  speed_m_s: 0.12
+  max_speed_m_s: 0.30
+  vertical_speed_m_s: 0.12
+
+  command_frame: local
+
+  kp_xy: 0.55
+  kp_z: 0.35
+
+  position_tolerance_m: 0.18
+  segment_timeout_factor: 4.0
+  corner_hold_s: 0.5
+  finish_hold_s: 1.0
+
+path:
+  - arc:
+      radius_m: 5.5
+      angle_deg: 360
+      direction: right
+      center_offset_x_m: 5.5
+      center_offset_y_m: 0.0
+      flight_height_m: 0.5
+      z_offset_m: -3

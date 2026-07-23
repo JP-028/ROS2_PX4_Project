@@ -161,26 +161,38 @@ echo
 
 read -rp "Start batch experiment now? [y/N]: " START_ANSWER
 START_ANSWER="${START_ANSWER:-N}"
-
 if ! [[ "$START_ANSWER" =~ ^[Yy]$ ]]; then
   echo "[INFO] Cancelled. No batch experiment was started."
   exit 0
 fi
 
 collect_bag_topics() {
-  local topic_list
-  topic_list="$(ros2 topic list 2>/dev/null || true)"
-  {
-    echo "$topic_list" | grep -E '^/uav/local_pose$' || true
-    echo "$topic_list" | grep -E '^/cmd_vel$' || true
-    echo "$topic_list" | grep -E '^/fmu/out/vehicle_odometry$' || true
-    echo "$topic_list" | grep -E '^/fmu/out/vehicle_status$' || true
-    echo "$topic_list" | grep -E '^/fmu/out/sensor_combined$' || true
-    echo "$topic_list" | grep -E '^/fmu/out/vehicle_imu$' || true
-    echo "$topic_list" | grep -E '^/fmu/out/vehicle_imu_status$' || true
-    echo "$topic_list" | grep -E 'image$' || true
-    echo "$topic_list" | grep -E 'camera_info$' || true
-  } | sort -u
+ local topic_list
+  topic_list="$(ros2 topic list)"
+
+  local wanted_topics=(
+    "/stereo/left/image_raw"
+    "/stereo/right/image_raw"
+    "/stereo/left/camera_info"
+    "/stereo/right/camera_info"
+    "/fmu/out/sensor_combined"
+    "/fmu/out/vehicle_odometry"
+    "/fmu/out/vehicle_local_position_v1"
+    "/fmu/out/vehicle_attitude"
+    "/fmu/out/timesync_status"
+    "/fmu/in/trajectory_setpoint"
+    "/uav/local_pose"
+    "/tf"
+    "/tf_static"
+  )
+
+  for topic in "${wanted_topics[@]}"; do
+    if echo "$topic_list" | grep -Fxq "$topic"; then
+      echo "$topic"
+    else
+      echo "[WARN] Requested rosbag topic not currently available: $topic" >&2
+    fi
+  done
 }
 
 for run_idx in $(seq 1 "$RUN_COUNT"); do

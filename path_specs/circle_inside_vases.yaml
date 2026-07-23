@@ -1,0 +1,11 @@
+name: circle_inside_vases
+type: circle
+
+description: 11 meter diameter circle, counter-clockwise, relative to start pose, intended to fly inside the vase ring.
+
+parameters:
+  diameter_m: 11.0
+  speed_m_s: 0.3
+  direction: ccw
+  altitude_m: 0.0
+  samples: 1000

@@ -288,7 +288,18 @@ class SegmentExecutor(Node):
         forward = np.array([math.cos(self.current_heading), math.sin(self.current_heading), 0.0])
         left = np.array([-math.sin(self.current_heading), math.cos(self.current_heading), 0.0])
 
-        center = self.current_target + sign * radius * left
+        center_offset_x = arc.get("center_offset_x_m", None)
+        center_offset_y = arc.get("center_offset_y_m", None)
+
+        if center_offset_x is not None and center_offset_y is not None:
+            center = self.current_target + np.array([
+                float(center_offset_x),
+                float(center_offset_y),
+                0.0,
+            ])
+        else:
+            center = self.current_target + sign * radius * left
+
         radial_start = self.current_target - center
         start_angle = math.atan2(radial_start[1], radial_start[0])
 
@@ -316,10 +327,14 @@ class SegmentExecutor(Node):
 
             angle = start_angle + sign * angle_rad * progress
 
+            flight_height = float(
+                arc.get("flight_height_m", self.current_target[2])
+            )
+
             target = np.array([
                 center[0] + radius * math.cos(angle),
                 center[1] + radius * math.sin(angle),
-                self.current_target[2],
+                flight_height,
             ])
 
             dangle_dt = sign * angle_rad / max(duration, 1e-6)
@@ -358,7 +373,7 @@ class SegmentExecutor(Node):
         self.current_target = np.array([
             center[0] + radius * math.cos(end_angle),
             center[1] + radius * math.sin(end_angle),
-            self.current_target[2],
+            flight_height,
         ])
 
         self.current_heading = wrap_angle(self.current_heading + sign * angle_rad)
