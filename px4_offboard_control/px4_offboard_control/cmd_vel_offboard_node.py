@@ -56,7 +56,7 @@ class CmdVelOffboardNode(Node):
         self.current_twist = Twist()
 
         # PX4 NED: negative z means height above ground
-        self.altitude = -2.0
+        self.altitude = -0.8
 
         # current yaw angle of UAV in radians
         self.current_yaw = 0.0
@@ -127,7 +127,7 @@ class CmdVelOffboardNode(Node):
         msg.velocity = [
             float(vx_local),
             float(vy_local),
-            float(vz_body)
+            float('nan')
         ]
 
         msg.yaw = float('nan')

@@ -25,5 +25,5 @@ path:
       direction: right
       center_offset_x_m: 5.5
       center_offset_y_m: 0.0
-      flight_height_m: 0.5
+      flight_height_m: 0.1
       z_offset_m: -3
