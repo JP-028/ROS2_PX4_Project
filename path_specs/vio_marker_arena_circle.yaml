@@ -1,0 +1,11 @@
+name: vio_marker_arena_circle
+type: circle
+
+description: 11 meter diameter circle centered in the VIO marker arena, counter-clockwise, relative to the configured spawn pose.
+
+parameters:
+  diameter_m: 11.0
+  speed_m_s: 0.3
+  direction: ccw
+  altitude_m: 0.0
+  samples: 1000
