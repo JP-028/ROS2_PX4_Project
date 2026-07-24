@@ -1,0 +1,30 @@
+VINS-Fusion Stereo VO comparison
+================================
+
+Reference samples: 2718
+VINS samples:      349
+Compared samples:  300
+
+Alignment: rigid 3D alignment with scale fixed to 1.0
+Time association: normalized traveled-path progress
+
+ate_rmse_m: 9.585354
+ate_mean_m: 8.476594
+ate_median_m: 8.267340
+ate_max_m: 16.339712
+endpoint_error_m: 13.484393
+reference_path_length_m: 34.669621
+estimate_path_length_m: 141.942023
+reference_start_end_distance_m: 0.092081
+estimate_start_end_distance_m: 23.302143
+estimate_vertical_range_m: 24.828724
+
+similarity_scale_diagnostic: 0.245251
+
+Rotation matrix:
+[[ 0.035409 -0.636009  0.770869]
+ [-0.973864 -0.195124 -0.116254]
+ [ 0.224353 -0.746605 -0.626296]]
+
+Translation vector:
+[ 0.452925 10.690137 -4.823314]
