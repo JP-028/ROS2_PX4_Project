@@ -15,3 +15,6 @@ rosbag/
 *.mcap
 *_backup_*.py
 *_backup_*.sh
+# Generated experiment and VINS results
+vins_output/
+# ROS 2 bag databases
