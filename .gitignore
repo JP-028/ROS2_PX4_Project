@@ -1,20 +1,50 @@
+# ROS 2 build outputs
 build/
 install/
 log/
-*.pyc
+
+# Python
 __pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+.venv_*/
+venv/
+env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.backup
+
+# Nested test repositories
 My_new_repo/
 src/My_new_repo/
 
-# Experiment outputs
-path_analysis/
-batch_experiments/
+# ROS bag recordings
 bags/
 rosbag/
 *.db3
 *.mcap
+
+# Generated experiment outputs
+path_analysis/
+batch_experiments/
+vins_output/
+
+# Temporary files
+*.log
+*.tmp
+
+# Script backup copies
 *_backup_*.py
 *_backup_*.sh
-# Generated experiment and VINS results
-vins_output/
-# ROS 2 bag databases
+
+# Operating-system files
+.DS_Store
+Thumbs.db
