@@ -116,16 +116,19 @@ case "$ACTION" in
     echo "  ./scripts/camera/start_camera_bridges_all_worlds.sh"
     echo
     echo "Terminal 4:"
-    echo "  ./scripts/control/start_tf_broadcaster.sh"
+    echo "  ./scripts/control/start_local_pose_from_px4.sh"
     echo
     echo "Terminal 5:"
-    echo "  ./scripts/control/start_offboard_control.sh"
+    echo "  ./scripts/control/start_tf_broadcaster.sh"
     echo
     echo "Terminal 6:"
+    echo "  ./scripts/control/start_offboard_control.sh"
+    echo
+    echo "Terminal 7:"
     echo "  ./scripts/flight/path_workflow_menu.sh"
     echo "  Select YAML -> Start analyzer only"
     echo
-    echo "Terminal 7:"
+    echo "Terminal 8:"
     echo "  ./scripts/flight/path_workflow_menu.sh"
     echo "  Select same YAML -> Execute flight only"
     echo
