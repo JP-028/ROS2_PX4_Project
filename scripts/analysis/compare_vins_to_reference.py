@@ -4,6 +4,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+METHOD_LABEL = "VINS-Fusion Stereo VO"
 import rosbag2_py
 import yaml
 from geometry_msgs.msg import PoseStamped
@@ -262,11 +264,11 @@ def metrics(ref, est, ref_raw, est_raw):
 def plot_xy(ref, est, path, title):
     plt.figure(figsize=(9, 8))
     plt.plot(ref[:, 0], ref[:, 1], label="PX4 reference", linewidth=2)
-    plt.plot(est[:, 0], est[:, 1], label="VINS Stereo VO", linewidth=1.5)
+    plt.plot(est[:, 0], est[:, 1], label=METHOD_LABEL, linewidth=1.5)
     plt.scatter(ref[0, 0], ref[0, 1], marker="o", label="Reference start")
-    plt.scatter(est[0, 0], est[0, 1], marker="x", label="VINS start")
+    plt.scatter(est[0, 0], est[0, 1], marker="x", label=f"{METHOD_LABEL} start")
     plt.scatter(ref[-1, 0], ref[-1, 1], marker="s", label="Reference end")
-    plt.scatter(est[-1, 0], est[-1, 1], marker="+", label="VINS end")
+    plt.scatter(est[-1, 0], est[-1, 1], marker="+", label=f"{METHOD_LABEL} end")
     plt.xlabel("X [m]"); plt.ylabel("Y [m]"); plt.title(title)
     plt.axis("equal"); plt.grid(True); plt.legend(); plt.tight_layout()
     plt.savefig(path, dpi=180); plt.close()
@@ -276,7 +278,7 @@ def plot_3d(ref, est, path):
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
     ax.plot(ref[:, 0], ref[:, 1], ref[:, 2], label="PX4 reference", linewidth=2)
-    ax.plot(est[:, 0], est[:, 1], est[:, 2], label="VINS Stereo VO", linewidth=1.5)
+    ax.plot(est[:, 0], est[:, 1], est[:, 2], label=METHOD_LABEL, linewidth=1.5)
     ax.set_xlabel("X [m]"); ax.set_ylabel("Y [m]"); ax.set_zlabel("Z [m]")
     ax.set_title("Rigid-aligned 3D trajectories"); ax.legend()
     fig.tight_layout(); fig.savefig(path, dpi=180); plt.close(fig)
@@ -286,7 +288,7 @@ def plot_coordinates(ref, est, progress, path):
     plt.figure(figsize=(11, 7))
     for i, axis in enumerate(("X", "Y", "Z")):
         plt.plot(progress, ref[:, i], label=f"Reference {axis}", linewidth=2)
-        plt.plot(progress, est[:, i], "--", label=f"VINS {axis}", linewidth=1.3)
+        plt.plot(progress, est[:, i], "--", label=f"{METHOD_LABEL} {axis}", linewidth=1.3)
     plt.xlabel("Comparison progress [%]"); plt.ylabel("Position [m]")
     plt.title("Trajectory coordinates"); plt.grid(True); plt.legend(ncol=2)
     plt.tight_layout(); plt.savefig(path, dpi=180); plt.close()
@@ -296,7 +298,7 @@ def plot_error(progress, error, path):
     plt.figure(figsize=(11, 6))
     plt.plot(progress, error, linewidth=1.8)
     plt.xlabel("Comparison progress [%]"); plt.ylabel("3D position error [m]")
-    plt.title("VINS position error relative to PX4 reference")
+    plt.title(f"{METHOD_LABEL} position error relative to PX4 reference")
     plt.grid(True); plt.tight_layout(); plt.savefig(path, dpi=180); plt.close()
 
 
@@ -306,7 +308,7 @@ def plot_axis_error(progress, vector, path):
         plt.plot(progress, vector[:, i], label=label, linewidth=1.5)
     plt.axhline(0.0, linewidth=1)
     plt.xlabel("Comparison progress [%]"); plt.ylabel("Signed error [m]")
-    plt.title("Signed coordinate errors: VINS minus PX4")
+    plt.title(f"Signed coordinate errors: {METHOD_LABEL} minus PX4")
     plt.grid(True); plt.legend(); plt.tight_layout()
     plt.savefig(path, dpi=180); plt.close()
 
@@ -340,7 +342,7 @@ def write_html(path, values, ref_n, est_n, matched_n, association, scale):
         for k, v in values.items()
     )
     path.write_text(f"""<!doctype html>
-<html><head><meta charset="utf-8"><title>VINS Stereo VO Evaluation</title>
+<html><head><meta charset="utf-8"><title>{METHOD_LABEL} Evaluation</title>
 <style>
 body{{font-family:Arial,sans-serif;max-width:1180px;margin:auto;padding:24px;background:#f4f4f4;color:#222}}
 section{{background:white;padding:20px;margin-bottom:18px;border:1px solid #ddd}}
@@ -348,9 +350,9 @@ table{{border-collapse:collapse;width:100%}}td,th{{border:1px solid #ddd;padding
 th{{background:#eee}}img{{max-width:100%;height:auto;border:1px solid #ddd}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(470px,1fr));gap:16px}}
 </style></head><body>
-<section><h1>VINS-Fusion Stereo VO Evaluation</h1>
+<section><h1>{METHOD_LABEL} Evaluation</h1>
 <p><b>Reference:</b> recorded PX4 local pose</p>
-<p><b>Estimate:</b> VINS-Fusion Stereo VO processed offline from recorded stereo images</p>
+<p><b>Estimate:</b> {METHOD_LABEL}, processed offline from the recorded dataset</p>
 <p><b>Alignment:</b> rigid 3D rotation and translation; scale fixed to 1.0</p>
 <p><b>Association:</b> {html.escape(association)}</p>
 <p><b>Samples:</b> reference {ref_n}, VINS {est_n}, compared {matched_n}</p>
@@ -369,14 +371,28 @@ th{{background:#eee}}img{{max-width:100%;height:auto;border:1px solid #ddd}}
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Compare offline VINS Stereo VO with recorded PX4 reference.")
+    parser = argparse.ArgumentParser(
+        description="Compare an offline VINS estimate with the recorded PX4 reference."
+    )
     parser.add_argument("bag_dir", type=Path)
     parser.add_argument("vins_csv", type=Path)
     parser.add_argument("output_dir", type=Path)
     parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
     parser.add_argument("--association", choices=("progress", "time"), default="progress")
     parser.add_argument("--samples", type=int, default=300)
+    parser.add_argument(
+        "--method-label",
+        default="VINS-Fusion Stereo VO",
+        help=(
+            "Clear method name used in reports, HTML pages, "
+            "plot titles, and legends."
+        ),
+    )
+
     args = parser.parse_args()
+
+    global METHOD_LABEL
+    METHOD_LABEL = args.method_label
     if args.samples < 10:
         raise ValueError("--samples must be at least 10")
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -418,7 +434,9 @@ def main():
     write_matches(args.output_dir / "matched_trajectory_errors.csv", progress, ref, est_aligned, error, vector)
 
     with (args.output_dir / "comparison_report.txt").open("w", encoding="utf-8") as f:
-        f.write("VINS-Fusion Stereo VO comparison\n================================\n\n")
+        report_title = f"{METHOD_LABEL} comparison"
+        f.write(report_title + "\n")
+        f.write("=" * len(report_title) + "\n\n")
         f.write(f"Reference topic: {args.reference_topic}\n")
         f.write(f"Association: {association}\n")
         f.write("Alignment: rigid 3D alignment with scale fixed to 1.0\n\n")

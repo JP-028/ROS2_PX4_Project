@@ -209,6 +209,8 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
   date +"%Y-%m-%d_%H-%M-%S" > "$RUN_DIR/start_time.txt"
 
   BAG_PID=""
+  IMU_BAG_PID=""
+
   if [ "$RECORD_BAG" = "true" ]; then
     mkdir -p "$RUN_DIR/rosbag"
 
@@ -220,13 +222,30 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
       echo "[INFO] Recording rosbag topics:"
       printf '       %s\n' "${BAG_TOPICS[@]}" | tee "$RUN_DIR/logs/rosbag_topics.txt"
 
+      ROSBAG_QOS_FILE="$PROJECT_DIR/config/rosbag/vio_recording_qos.yaml"
+
       ros2 bag record \
         -o "$RUN_DIR/rosbag/sensor_recording" \
+        --max-cache-size 1073741824 \
+        --qos-profile-overrides-path "$ROSBAG_QOS_FILE" \
         "${BAG_TOPICS[@]}" \
         > "$RUN_DIR/logs/rosbag.log" 2>&1 &
 
       BAG_PID=$!
-      echo "[INFO] rosbag PID: $BAG_PID"
+      echo "[INFO] Main rosbag PID: $BAG_PID"
+
+      echo "[INFO] Starting dedicated Gazebo IMU recorder..."
+
+      ros2 bag record \
+        -o "$RUN_DIR/rosbag/imu_recording" \
+        --max-cache-size 268435456 \
+        --qos-profile-overrides-path "$ROSBAG_QOS_FILE" \
+        /gazebo/imu \
+        > "$RUN_DIR/logs/imu_rosbag.log" 2>&1 &
+
+      IMU_BAG_PID=$!
+      echo "[INFO] IMU rosbag PID: $IMU_BAG_PID"
+
       sleep 2
     fi
   fi
@@ -262,11 +281,42 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
   sleep 2
 
   if [ -n "$BAG_PID" ]; then
-    echo "[INFO] Stopping rosbag..."
+    echo "[INFO] Stopping main rosbag..."
+
     if kill -0 "$BAG_PID" >/dev/null 2>&1; then
       kill -SIGINT "$BAG_PID" >/dev/null 2>&1 || true
       wait "$BAG_PID" >/dev/null 2>&1 || true
     fi
+  fi
+
+  if [ -n "$IMU_BAG_PID" ]; then
+    echo "[INFO] Stopping dedicated IMU rosbag..."
+
+    if kill -0 "$IMU_BAG_PID" >/dev/null 2>&1; then
+      kill -SIGINT "$IMU_BAG_PID" >/dev/null 2>&1 || true
+      wait "$IMU_BAG_PID" >/dev/null 2>&1 || true
+    fi
+
+    IMU_BAG_DIR="$RUN_DIR/rosbag/imu_recording"
+    IMU_REPORT="$RUN_DIR/gazebo_imu_integrity_report.txt"
+    IMU_STATUS="$RUN_DIR/gazebo_imu_integrity_status.txt"
+
+    echo "[INFO] Checking dedicated Gazebo IMU recording..."
+
+    if python3 scripts/validation/check_rosbag_gazebo_imu_integrity.py \
+        "$IMU_BAG_DIR" \
+        "$IMU_REPORT" \
+        > "$RUN_DIR/logs/gazebo_imu_integrity.log" 2>&1
+    then
+      echo "PASS" > "$IMU_STATUS"
+      echo "[OK] Dedicated Gazebo IMU recording passed."
+    else
+      echo "FAIL" > "$IMU_STATUS"
+      echo "[WARN] Dedicated Gazebo IMU recording failed."
+      echo "       $IMU_REPORT"
+    fi
+
+    cat "$RUN_DIR/logs/gazebo_imu_integrity.log"
   fi
 
   LATEST_ANALYSIS="$(find "$PROJECT_DIR/path_analysis" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort | tail -n 1 || true)"

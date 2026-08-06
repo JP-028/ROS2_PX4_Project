@@ -1,0 +1,11 @@
+/gazebo/imu:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 2000
+
+/fmu/out/sensor_combined:
+  reliability: best_effort
+  durability: transient_local
+  history: keep_last
+  depth: 2000
