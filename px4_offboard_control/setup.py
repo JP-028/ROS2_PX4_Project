@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='root',
     maintainer_email='josephine.perc@gmail.com',
-    description='TODO: Package description',
+    description='ROS 2 nodes for PX4 offboard velocity control, keyboard control, predefined flight paths, and UAV TF broadcasting.',
     license='TODO: License declaration',
     extras_require={
         'test': [

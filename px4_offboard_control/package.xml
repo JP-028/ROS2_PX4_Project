@@ -3,13 +3,14 @@
 <package format="3">
   <name>px4_offboard_control</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>ROS 2 nodes for PX4 offboard velocity control, keyboard control, predefined flight paths, and UAV TF broadcasting.</description>
   <maintainer email="josephine.perc@gmail.com">root</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>px4_msgs</depend>
+  <depend>tf2_ros</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
