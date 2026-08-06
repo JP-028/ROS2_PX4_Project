@@ -48,3 +48,7 @@ vins_output/
 # Operating-system files
 .DS_Store
 Thumbs.db
+
+# Manually created script snapshots
+*.before_*
+*_broken_*
