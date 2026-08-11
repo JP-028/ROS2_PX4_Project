@@ -52,3 +52,7 @@ Thumbs.db
 # Manually created script snapshots
 *.before_*
 *_broken_*
+
+# Generated SuperVINS results
+supervins_output/
+supervins_results/

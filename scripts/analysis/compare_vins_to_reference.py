@@ -133,7 +133,16 @@ def load_reference(bag_dir, topic_name):
 def load_vins_csv(path: Path):
     points, times = [], []
     with path.open("r", newline="", encoding="utf-8") as handle:
-        for row_number, row in enumerate(csv.reader(handle), start=1):
+        for row_number, line in enumerate(handle, start=1):
+            line = line.strip()
+            if not line:
+                continue
+
+            if "," in line:
+                row = [part.strip() for part in line.split(",")]
+            else:
+                row = line.split()
+
             if len(row) < 4:
                 continue
             try:
