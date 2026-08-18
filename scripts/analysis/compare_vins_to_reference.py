@@ -1,467 +1,722 @@
 #!/usr/bin/env python3
-import argparse, csv, html, json
+
+import argparse
+import csv
+import math
+import sqlite3
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-METHOD_LABEL = "VINS-Fusion Stereo VO"
-import rosbag2_py
-import yaml
-from geometry_msgs.msg import PoseStamped
 from rclpy.serialization import deserialize_message
+from rosidl_runtime_py.utilities import get_message
 
-DEFAULT_REFERENCE_TOPIC = "/uav/local_pose"
+
+REFERENCE_TOPIC = "/uav/local_pose"
 
 
-def storage_id(bag_dir: Path) -> str:
-    meta = bag_dir / "metadata.yaml"
-    if not meta.exists():
-        return "sqlite3"
-    try:
-        data = yaml.safe_load(meta.read_text(encoding="utf-8"))
-        return str(data["rosbag2_bagfile_information"]["storage_identifier"])
-    except Exception:
-        return "sqlite3"
+def stamp_to_seconds(stamp):
+    return float(stamp.sec) + float(stamp.nanosec) * 1e-9
+
+
+def normalize_quaternion(q):
+    q = np.asarray(q, dtype=float)
+    n = np.linalg.norm(q)
+    if n < 1e-12:
+        return np.array([0.0, 0.0, 0.0, 1.0])
+    return q / n
+
+
+def quaternion_multiply(a, b):
+    ax, ay, az, aw = a
+    bx, by, bz, bw = b
+    return np.array([
+        aw * bx + ax * bw + ay * bz - az * by,
+        aw * by - ax * bz + ay * bw + az * bx,
+        aw * bz + ax * by - ay * bx + az * bw,
+        aw * bw - ax * bx - ay * by - az * bz,
+    ])
+
+
+def quaternion_to_rotation(q):
+    x, y, z, w = normalize_quaternion(q)
+
+    return np.array([
+        [1 - 2 * (y*y + z*z), 2 * (x*y - z*w),     2 * (x*z + y*w)],
+        [2 * (x*y + z*w),     1 - 2 * (x*x + z*z), 2 * (y*z - x*w)],
+        [2 * (x*z - y*w),     2 * (y*z + x*w),     1 - 2 * (x*x + y*y)],
+    ])
+
+
+def rotation_to_quaternion(R):
+    trace = np.trace(R)
+
+    if trace > 0:
+        s = math.sqrt(trace + 1.0) * 2
+        w = 0.25 * s
+        x = (R[2, 1] - R[1, 2]) / s
+        y = (R[0, 2] - R[2, 0]) / s
+        z = (R[1, 0] - R[0, 1]) / s
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+        s = math.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / s
+        x = 0.25 * s
+        y = (R[0, 1] + R[1, 0]) / s
+        z = (R[0, 2] + R[2, 0]) / s
+    elif R[1, 1] > R[2, 2]:
+        s = math.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / s
+        x = (R[0, 1] + R[1, 0]) / s
+        y = 0.25 * s
+        z = (R[1, 2] + R[2, 1]) / s
+    else:
+        s = math.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / s
+        x = (R[0, 2] + R[2, 0]) / s
+        y = (R[1, 2] + R[2, 1]) / s
+        z = 0.25 * s
+
+    return normalize_quaternion([x, y, z, w])
+
+
+def slerp(q0, q1, alpha):
+    q0 = normalize_quaternion(q0)
+    q1 = normalize_quaternion(q1)
+
+    dot = np.dot(q0, q1)
+
+    if dot < 0:
+        q1 = -q1
+        dot = -dot
+
+    dot = np.clip(dot, -1.0, 1.0)
+
+    if dot > 0.9995:
+        return normalize_quaternion(q0 + alpha * (q1 - q0))
+
+    theta = math.acos(dot)
+    sin_theta = math.sin(theta)
+
+    return (
+        math.sin((1 - alpha) * theta) / sin_theta * q0
+        + math.sin(alpha * theta) / sin_theta * q1
+    )
+
+
+def interpolate_positions(times, positions, targets):
+    return np.column_stack([
+        np.interp(targets, times, positions[:, i])
+        for i in range(3)
+    ])
+
+
+def interpolate_quaternions(times, quaternions, targets):
+    result = []
+
+    for t in targets:
+        j = np.searchsorted(times, t)
+
+        if j <= 0:
+            result.append(quaternions[0])
+            continue
+
+        if j >= len(times):
+            result.append(quaternions[-1])
+            continue
+
+        t0 = times[j - 1]
+        t1 = times[j]
+        alpha = 0.0 if t1 == t0 else (t - t0) / (t1 - t0)
+
+        result.append(
+            slerp(quaternions[j - 1], quaternions[j], alpha)
+        )
+
+    return np.asarray(result)
 
 
 def load_reference(bag_dir, topic_name):
-    """
-    Load only the requested reference topic directly from the rosbag
-    SQLite database.
+    db_files = sorted(Path(bag_dir).glob("*.db3"))
 
-    This avoids sequentially reading and deserializing all recorded
-    stereo-image messages.
-    """
-    import sqlite3
-    from pathlib import Path
+    if not db_files:
+        raise RuntimeError(f"No rosbag database found in {bag_dir}")
 
-    import numpy as np
-    from rclpy.serialization import deserialize_message
-    from rosidl_runtime_py.utilities import get_message
+    # Build mapping:
+    # rosbag timestamp -> stereo camera header timestamp.
+    camera_bag_times = []
+    camera_sensor_times = []
 
-    bag_path = Path(bag_dir)
-
-    database_files = sorted(bag_path.glob("*.db3"))
-
-    if not database_files:
-        raise FileNotFoundError(
-            f"No .db3 rosbag database found in: {bag_path}"
-        )
-
-    positions = []
-    timestamps_ns = []
-    message_type_name = None
-
-    for database_file in database_files:
-        connection = sqlite3.connect(str(database_file))
+    for db_file in db_files:
+        connection = sqlite3.connect(str(db_file))
 
         try:
-            topic_row = connection.execute(
-                """
-                SELECT id, type
-                FROM topics
-                WHERE name = ?
-                """,
-                (topic_name,),
+            topic = connection.execute(
+                "SELECT id, type FROM topics WHERE name = ?",
+                ("/stereo/left/image_raw",),
             ).fetchone()
 
-            if topic_row is None:
+            if topic is None:
                 continue
 
-            topic_id, topic_type = topic_row
-            message_type_name = topic_type
-            message_class = get_message(topic_type)
+            topic_id, type_name = topic
+            message_class = get_message(type_name)
 
-            cursor = connection.execute(
-                """
-                SELECT timestamp, data
-                FROM messages
-                WHERE topic_id = ?
-                ORDER BY timestamp
-                """,
+            rows = connection.execute(
+                "SELECT timestamp, data FROM messages "
+                "WHERE topic_id = ? ORDER BY timestamp",
                 (topic_id,),
             )
 
-            for timestamp_ns, serialized_data in cursor:
-                message = deserialize_message(
-                    serialized_data,
-                    message_class,
-                )
+            for bag_timestamp, data in rows:
+                msg = deserialize_message(data, message_class)
 
-                positions.append(
-                    [
-                        float(message.pose.position.x),
-                        float(message.pose.position.y),
-                        float(message.pose.position.z),
-                    ]
-                )
+                sensor_time = stamp_to_seconds(msg.header.stamp)
 
-                timestamps_ns.append(int(timestamp_ns))
+                if sensor_time > 0:
+                    camera_bag_times.append(
+                        bag_timestamp * 1e-9
+                    )
+                    camera_sensor_times.append(
+                        sensor_time
+                    )
 
         finally:
             connection.close()
 
-    if not positions:
+    if len(camera_bag_times) < 2:
         raise RuntimeError(
-            f"No messages found for topic '{topic_name}' in {bag_path}"
+            "Could not build bag-to-camera timestamp mapping."
         )
 
-    order = np.argsort(np.asarray(timestamps_ns, dtype=np.int64))
-
-    positions_array = np.asarray(
-        positions,
+    camera_bag_times = np.asarray(
+        camera_bag_times,
         dtype=float,
-    )[order]
-
-    timestamps_array = np.asarray(
-        timestamps_ns,
-        dtype=np.int64,
-    )[order]
-
-    time_seconds = (
-        timestamps_array - timestamps_array[0]
-    ).astype(float) * 1e-9
-
-    print(
-        f"[INFO] Loaded {len(positions_array)} messages directly "
-        f"from {topic_name} ({message_type_name})."
     )
 
-    return positions_array, time_seconds
+    camera_sensor_times = np.asarray(
+        camera_sensor_times,
+        dtype=float,
+    )
 
-def load_vins_csv(path: Path):
-    points, times = [], []
-    with path.open("r", newline="", encoding="utf-8") as handle:
-        for row_number, line in enumerate(handle, start=1):
+    order = np.argsort(camera_bag_times)
+
+    camera_bag_times = camera_bag_times[order]
+    camera_sensor_times = camera_sensor_times[order]
+
+    times = []
+    positions = []
+    quaternions = []
+
+    for db_file in db_files:
+        connection = sqlite3.connect(str(db_file))
+
+        try:
+            topic = connection.execute(
+                "SELECT id, type FROM topics WHERE name = ?",
+                (topic_name,),
+            ).fetchone()
+
+            if topic is None:
+                continue
+
+            topic_id, type_name = topic
+            message_class = get_message(type_name)
+
+            rows = connection.execute(
+                "SELECT timestamp, data FROM messages "
+                "WHERE topic_id = ? ORDER BY timestamp",
+                (topic_id,),
+            )
+
+            for bag_timestamp, data in rows:
+                msg = deserialize_message(data, message_class)
+
+                bag_time_s = bag_timestamp * 1e-9
+
+                # Convert the reference bag timestamp onto the
+                # Gazebo/camera sensor timeline.
+                sensor_time_s = float(
+                    np.interp(
+                        bag_time_s,
+                        camera_bag_times,
+                        camera_sensor_times,
+                    )
+                )
+
+                times.append(sensor_time_s)
+
+                positions.append([
+                    msg.pose.position.x,
+                    msg.pose.position.y,
+                    msg.pose.position.z,
+                ])
+
+                quaternions.append([
+                    msg.pose.orientation.x,
+                    msg.pose.orientation.y,
+                    msg.pose.orientation.z,
+                    msg.pose.orientation.w,
+                ])
+
+        finally:
+            connection.close()
+
+    if not times:
+        raise RuntimeError(
+            f"No reference data found on {topic_name}"
+        )
+
+    order = np.argsort(times)
+
+    return (
+        np.asarray(times, dtype=float)[order],
+        np.asarray(positions, dtype=float)[order],
+        np.asarray(quaternions, dtype=float)[order],
+    )
+
+def load_estimate(path, estimator_format):
+    times = []
+    positions = []
+    quaternions = []
+
+    with Path(path).open("r", encoding="utf-8") as handle:
+        for line in handle:
             line = line.strip()
+
             if not line:
                 continue
 
-            if "," in line:
-                row = [part.strip() for part in line.split(",")]
-            else:
-                row = line.split()
+            row = (
+                [v.strip() for v in line.split(",")]
+                if "," in line
+                else line.split()
+            )
 
-            if len(row) < 4:
+            if len(row) < 8:
                 continue
+
             try:
-                t, x, y, z = map(float, row[:4])
+                values = [float(v) for v in row[:8]]
             except ValueError:
-                if row_number != 1:
-                    print(f"[WARN] Skipping invalid VINS row {row_number}")
                 continue
-            if np.all(np.isfinite([t, x, y, z])):
-                times.append(t)
-                points.append([x, y, z])
-    if not points:
-        raise RuntimeError(f"No valid VINS positions found in {path}")
+
+            t, x, y, z = values[:4]
+
+            if estimator_format == "vins":
+                qw, qx, qy, qz = values[4:8]
+            else:
+                qx, qy, qz, qw = values[4:8]
+
+            times.append(t)
+            positions.append([x, y, z])
+            quaternions.append(
+                normalize_quaternion([qx, qy, qz, qw])
+            )
+
+    if not times:
+        raise RuntimeError(f"No valid estimator poses found in {path}")
 
     times = np.asarray(times, dtype=float)
+
     if len(times) > 1:
-        dt = float(np.median(np.abs(np.diff(times))))
+        dt = np.median(np.abs(np.diff(times)))
+
         if dt > 1e6:
             times *= 1e-9
         elif dt > 1e3:
             times *= 1e-6
         elif dt > 10:
             times *= 1e-3
-    times -= times[0]
-    return np.asarray(points, dtype=float), times
 
+    order = np.argsort(times)
 
-def cumulative_distance(points):
-    if len(points) < 2:
-        return np.zeros(len(points))
-    return np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(points, axis=0), axis=1))]
-
-
-def path_length(points):
-    return float(cumulative_distance(points)[-1]) if len(points) else 0.0
-
-
-def resample_progress(points, count):
-    s = cumulative_distance(points)
-    if s[-1] <= 1e-12:
-        return np.repeat(points[:1], count, axis=0)
-    u = s / s[-1]
-    targets = np.linspace(0.0, 1.0, count)
-    return np.column_stack([np.interp(targets, u, points[:, i]) for i in range(3)])
-
-
-def resample_time(points, times, target_times):
-    return np.column_stack(
-        [np.interp(target_times, times, points[:, i]) for i in range(3)]
-    )
-
-
-def associate(ref, ref_t, est, est_t, method, count):
-    if method == "time":
-        duration = min(float(ref_t[-1]), float(est_t[-1]))
-        if duration <= 1e-6:
-            raise RuntimeError("Time association failed because duration is invalid.")
-        target = np.linspace(0.0, duration, count)
-        progress = target / duration * 100.0
-        return (
-            resample_time(ref, ref_t, target),
-            resample_time(est, est_t, target),
-            progress,
-            "relative timestamp interpolation",
-        )
     return (
-        resample_progress(ref, count),
-        resample_progress(est, count),
-        np.linspace(0.0, 100.0, count),
-        "normalized traveled-path progress",
+        times[order],
+        np.asarray(positions, dtype=float)[order],
+        np.asarray(quaternions, dtype=float)[order],
     )
 
 
-def rigid_alignment(source, target):
-    src_mean, tgt_mean = source.mean(0), target.mean(0)
-    src_c, tgt_c = source - src_mean, target - tgt_mean
-    u, _, vt = np.linalg.svd(src_c.T @ tgt_c)
-    rotation = vt.T @ u.T
-    if np.linalg.det(rotation) < 0:
-        vt[-1, :] *= -1
+def associate_by_time(
+    ref_t, ref_p, ref_q,
+    est_t, est_p, est_q,
+    samples,
+):
+    start = max(ref_t[0], est_t[0])
+    end = min(ref_t[-1], est_t[-1])
+
+    if end <= start:
+        raise RuntimeError(
+            "Reference and estimate timestamps do not overlap.\n"
+            f"Reference: {ref_t[0]:.6f} .. {ref_t[-1]:.6f}\n"
+            f"Estimate:  {est_t[0]:.6f} .. {est_t[-1]:.6f}"
+        )
+
+    targets = np.linspace(start, end, samples)
+
+    return (
+        targets,
+        interpolate_positions(ref_t, ref_p, targets),
+        interpolate_quaternions(ref_t, ref_q, targets),
+        interpolate_positions(est_t, est_p, targets),
+        interpolate_quaternions(est_t, est_q, targets),
+    )
+
+
+def align_positions(source, target, mode):
+    src_mean = source.mean(axis=0)
+    tgt_mean = target.mean(axis=0)
+
+    src = source - src_mean
+    tgt = target - tgt_mean
+
+    if mode == "se3":
+        u, _, vt = np.linalg.svd(src.T @ tgt)
         rotation = vt.T @ u.T
+
+        if np.linalg.det(rotation) < 0:
+            vt[-1] *= -1
+            rotation = vt.T @ u.T
+
+    else:
+        u, _, vt = np.linalg.svd(src[:, :2].T @ tgt[:, :2])
+        r2 = vt.T @ u.T
+
+        if np.linalg.det(r2) < 0:
+            vt[-1] *= -1
+            r2 = vt.T @ u.T
+
+        rotation = np.eye(3)
+        rotation[:2, :2] = r2
+
     translation = tgt_mean - rotation @ src_mean
-    return source @ rotation.T + translation, rotation, translation
+    aligned = source @ rotation.T + translation
+
+    return aligned, rotation
+
+
+def align_quaternions(quaternions, rotation):
+    q_align = rotation_to_quaternion(rotation)
+
+    return np.asarray([
+        normalize_quaternion(
+            quaternion_multiply(q_align, q)
+        )
+        for q in quaternions
+    ])
+
+
+def pose_matrix(position, quaternion):
+    T = np.eye(4)
+    T[:3, :3] = quaternion_to_rotation(quaternion)
+    T[:3, 3] = position
+    return T
+
+
+def calculate_rpe(
+    times,
+    ref_positions,
+    ref_quaternions,
+    est_positions,
+    est_quaternions,
+    delta_s,
+):
+    translation_errors = []
+    rotation_errors = []
+
+    for i in range(len(times)):
+        target_time = times[i] + delta_s
+        j = np.searchsorted(times, target_time)
+
+        if j >= len(times):
+            break
+
+        ref_relative = (
+            np.linalg.inv(
+                pose_matrix(ref_positions[i], ref_quaternions[i])
+            )
+            @ pose_matrix(ref_positions[j], ref_quaternions[j])
+        )
+
+        est_relative = (
+            np.linalg.inv(
+                pose_matrix(est_positions[i], est_quaternions[i])
+            )
+            @ pose_matrix(est_positions[j], est_quaternions[j])
+        )
+
+        error_transform = (
+            np.linalg.inv(ref_relative) @ est_relative
+        )
+
+        translation_errors.append(
+            np.linalg.norm(error_transform[:3, 3])
+        )
+
+        trace = np.trace(error_transform[:3, :3])
+        angle = math.acos(
+            np.clip((trace - 1.0) / 2.0, -1.0, 1.0)
+        )
+
+        rotation_errors.append(math.degrees(angle))
+
+    if not translation_errors:
+        raise RuntimeError("Not enough samples to calculate RPE.")
+
+    translation_errors = np.asarray(translation_errors)
+    rotation_errors = np.asarray(rotation_errors)
+
+    return (
+        float(np.sqrt(np.mean(translation_errors ** 2))),
+        float(np.sqrt(np.mean(rotation_errors ** 2))),
+    )
 
 
 def scale_diagnostic(source, target):
-    src_c, tgt_c = source - source.mean(0), target - target.mean(0)
-    denominator = np.sum(src_c ** 2)
+    src = source - source.mean(axis=0)
+    tgt = target - target.mean(axis=0)
+
+    denominator = np.sum(src ** 2)
+
     if denominator <= 1e-12:
         return float("nan")
-    u, singular, vt = np.linalg.svd(src_c.T @ tgt_c)
+
+    u, singular, vt = np.linalg.svd(src.T @ tgt)
+
     correction = np.ones(3)
+
     if np.linalg.det(vt.T @ u.T) < 0:
-        correction[-1] = -1.0
-    return float(np.sum(singular * correction) / denominator)
+        correction[-1] = -1
+
+    return float(
+        np.sum(singular * correction) / denominator
+    )
 
 
-def metrics(ref, est, ref_raw, est_raw):
-    vector = est - ref
-    error = np.linalg.norm(vector, axis=1)
-    horizontal = np.linalg.norm(vector[:, :2], axis=1)
-    vertical = np.abs(vector[:, 2])
-    ref_len, est_len = path_length(ref_raw), path_length(est_raw)
-    out = {
-        "ate_rmse_m": float(np.sqrt(np.mean(error ** 2))),
-        "ate_mean_m": float(np.mean(error)),
-        "ate_median_m": float(np.median(error)),
-        "ate_std_m": float(np.std(error)),
-        "ate_max_m": float(np.max(error)),
-        "endpoint_error_m": float(error[-1]),
-        "horizontal_rmse_m": float(np.sqrt(np.mean(horizontal ** 2))),
-        "horizontal_mean_m": float(np.mean(horizontal)),
-        "horizontal_max_m": float(np.max(horizontal)),
-        "vertical_rmse_m": float(np.sqrt(np.mean(vertical ** 2))),
-        "vertical_mean_m": float(np.mean(vertical)),
-        "vertical_max_m": float(np.max(vertical)),
-        "reference_path_length_m": ref_len,
-        "estimate_path_length_m": est_len,
-        "path_length_difference_m": est_len - ref_len,
-        "path_length_ratio": est_len / ref_len if ref_len > 1e-12 else float("nan"),
-        "reference_start_end_distance_m": float(np.linalg.norm(ref_raw[-1] - ref_raw[0])),
-        "estimate_start_end_distance_m": float(np.linalg.norm(est_raw[-1] - est_raw[0])),
-        "estimate_vertical_range_m": float(np.ptp(est_raw[:, 2])),
-    }
-    return out, error, vector
+def write_metrics(path, metrics):
+    with Path(path).open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["metric", "value"])
 
-
-def plot_xy(ref, est, path, title):
-    plt.figure(figsize=(9, 8))
-    plt.plot(ref[:, 0], ref[:, 1], label="PX4 reference", linewidth=2)
-    plt.plot(est[:, 0], est[:, 1], label=METHOD_LABEL, linewidth=1.5)
-    plt.scatter(ref[0, 0], ref[0, 1], marker="o", label="Reference start")
-    plt.scatter(est[0, 0], est[0, 1], marker="x", label=f"{METHOD_LABEL} start")
-    plt.scatter(ref[-1, 0], ref[-1, 1], marker="s", label="Reference end")
-    plt.scatter(est[-1, 0], est[-1, 1], marker="+", label=f"{METHOD_LABEL} end")
-    plt.xlabel("X [m]"); plt.ylabel("Y [m]"); plt.title(title)
-    plt.axis("equal"); plt.grid(True); plt.legend(); plt.tight_layout()
-    plt.savefig(path, dpi=180); plt.close()
-
-
-def plot_3d(ref, est, path):
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot(ref[:, 0], ref[:, 1], ref[:, 2], label="PX4 reference", linewidth=2)
-    ax.plot(est[:, 0], est[:, 1], est[:, 2], label=METHOD_LABEL, linewidth=1.5)
-    ax.set_xlabel("X [m]"); ax.set_ylabel("Y [m]"); ax.set_zlabel("Z [m]")
-    ax.set_title("Rigid-aligned 3D trajectories"); ax.legend()
-    fig.tight_layout(); fig.savefig(path, dpi=180); plt.close(fig)
-
-
-def plot_coordinates(ref, est, progress, path):
-    plt.figure(figsize=(11, 7))
-    for i, axis in enumerate(("X", "Y", "Z")):
-        plt.plot(progress, ref[:, i], label=f"Reference {axis}", linewidth=2)
-        plt.plot(progress, est[:, i], "--", label=f"{METHOD_LABEL} {axis}", linewidth=1.3)
-    plt.xlabel("Comparison progress [%]"); plt.ylabel("Position [m]")
-    plt.title("Trajectory coordinates"); plt.grid(True); plt.legend(ncol=2)
-    plt.tight_layout(); plt.savefig(path, dpi=180); plt.close()
-
-
-def plot_error(progress, error, path):
-    plt.figure(figsize=(11, 6))
-    plt.plot(progress, error, linewidth=1.8)
-    plt.xlabel("Comparison progress [%]"); plt.ylabel("3D position error [m]")
-    plt.title(f"{METHOD_LABEL} position error relative to PX4 reference")
-    plt.grid(True); plt.tight_layout(); plt.savefig(path, dpi=180); plt.close()
-
-
-def plot_axis_error(progress, vector, path):
-    plt.figure(figsize=(11, 7))
-    for i, label in enumerate(("X error", "Y error", "Z error")):
-        plt.plot(progress, vector[:, i], label=label, linewidth=1.5)
-    plt.axhline(0.0, linewidth=1)
-    plt.xlabel("Comparison progress [%]"); plt.ylabel("Signed error [m]")
-    plt.title(f"Signed coordinate errors: {METHOD_LABEL} minus PX4")
-    plt.grid(True); plt.legend(); plt.tight_layout()
-    plt.savefig(path, dpi=180); plt.close()
-
-
-def write_csv(path, values):
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f); writer.writerow(["metric", "value"])
-        for key, value in values.items():
+        for key, value in metrics.items():
             writer.writerow([key, f"{value:.9f}"])
 
 
-def write_matches(path, progress, ref, est, error, vector):
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+def write_trajectory(path, times, reference, estimate, errors):
+    with Path(path).open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+
         writer.writerow([
-            "progress_percent", "reference_x_m", "reference_y_m", "reference_z_m",
-            "vins_x_m", "vins_y_m", "vins_z_m",
-            "error_x_m", "error_y_m", "error_z_m", "error_3d_m"
+            "timestamp_s",
+            "reference_x_m", "reference_y_m", "reference_z_m",
+            "estimate_x_m", "estimate_y_m", "estimate_z_m",
+            "error_3d_m",
         ])
-        for i in range(len(progress)):
+
+        for t, ref, est, error in zip(
+            times, reference, estimate, errors
+        ):
             writer.writerow([
-                f"{progress[i]:.9f}", *[f"{v:.9f}" for v in ref[i]],
-                *[f"{v:.9f}" for v in est[i]], *[f"{v:.9f}" for v in vector[i]],
-                f"{error[i]:.9f}"
+                f"{t:.9f}",
+                *[f"{v:.9f}" for v in ref],
+                *[f"{v:.9f}" for v in est],
+                f"{error:.9f}",
             ])
 
 
-def write_html(path, values, ref_n, est_n, matched_n, association, scale):
-    rows = "\n".join(
-        f"<tr><td>{html.escape(k)}</td><td>{v:.6f}</td></tr>"
-        for k, v in values.items()
+def plot_trajectory(reference, estimate, method, path):
+    plt.figure(figsize=(8, 7))
+
+    plt.plot(
+        reference[:, 0],
+        reference[:, 1],
+        label="Reference",
+        linewidth=2,
     )
-    path.write_text(f"""<!doctype html>
-<html><head><meta charset="utf-8"><title>{METHOD_LABEL} Evaluation</title>
-<style>
-body{{font-family:Arial,sans-serif;max-width:1180px;margin:auto;padding:24px;background:#f4f4f4;color:#222}}
-section{{background:white;padding:20px;margin-bottom:18px;border:1px solid #ddd}}
-table{{border-collapse:collapse;width:100%}}td,th{{border:1px solid #ddd;padding:8px;text-align:left}}
-th{{background:#eee}}img{{max-width:100%;height:auto;border:1px solid #ddd}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(470px,1fr));gap:16px}}
-</style></head><body>
-<section><h1>{METHOD_LABEL} Evaluation</h1>
-<p><b>Reference:</b> recorded PX4 local pose</p>
-<p><b>Estimate:</b> {METHOD_LABEL}, processed offline from the recorded dataset</p>
-<p><b>Alignment:</b> rigid 3D rotation and translation; scale fixed to 1.0</p>
-<p><b>Association:</b> {html.escape(association)}</p>
-<p><b>Samples:</b> reference {ref_n}, VINS {est_n}, compared {matched_n}</p>
-<p><b>Similarity-scale diagnostic:</b> {scale:.6f}</p></section>
-<section><h2>Metrics</h2><table><tr><th>Metric</th><th>Value</th></tr>{rows}</table></section>
-<section><h2>Trajectory plots</h2><div class="grid">
-<div><h3>Start-normalized</h3><img src="01_xy_start_normalized.png"></div>
-<div><h3>Rigid-aligned XY</h3><img src="02_xy_rigid_aligned.png"></div>
-<div><h3>Rigid-aligned 3D</h3><img src="03_xyz_rigid_aligned.png"></div>
-<div><h3>Coordinates</h3><img src="04_coordinates_over_progress.png"></div>
-</div></section>
-<section><h2>Error plots</h2><div class="grid">
-<div><h3>3D position error</h3><img src="05_position_error_over_progress.png"></div>
-<div><h3>Signed axis errors</h3><img src="06_axis_errors_over_progress.png"></div>
-</div></section></body></html>""", encoding="utf-8")
+
+    plt.plot(
+        estimate[:, 0],
+        estimate[:, 1],
+        label=method,
+        linewidth=1.5,
+    )
+
+    plt.xlabel("X [m]")
+    plt.ylabel("Y [m]")
+    plt.title(f"{method} trajectory")
+    plt.axis("equal")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(path, dpi=180)
+    plt.close()
+
+
+def plot_error(times, errors, method, path):
+    relative_time = times - times[0]
+
+    plt.figure(figsize=(9, 5))
+
+    plt.plot(relative_time, errors, linewidth=1.5)
+
+    plt.xlabel("Time [s]")
+    plt.ylabel("Position error [m]")
+    plt.title(f"{method} position error")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(path, dpi=180)
+    plt.close()
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Compare an offline VINS estimate with the recorded PX4 reference."
-    )
+    parser = argparse.ArgumentParser()
+
     parser.add_argument("bag_dir", type=Path)
-    parser.add_argument("vins_csv", type=Path)
+    parser.add_argument("estimate_csv", type=Path)
     parser.add_argument("output_dir", type=Path)
-    parser.add_argument("--reference-topic", default=DEFAULT_REFERENCE_TOPIC)
-    parser.add_argument("--association", choices=("progress", "time"), default="progress")
-    parser.add_argument("--samples", type=int, default=300)
+
+    parser.add_argument(
+        "--format",
+        choices=("vins", "supervins"),
+        required=True,
+    )
+
+    parser.add_argument(
+        "--alignment",
+        choices=("se3", "yaw"),
+        required=True,
+    )
+
     parser.add_argument(
         "--method-label",
-        default="VINS-Fusion Stereo VO",
-        help=(
-            "Clear method name used in reports, HTML pages, "
-            "plot titles, and legends."
-        ),
+        required=True,
+    )
+
+    parser.add_argument(
+        "--reference-topic",
+        default=REFERENCE_TOPIC,
+    )
+
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=300,
+    )
+
+    parser.add_argument(
+        "--rpe-delta-s",
+        type=float,
+        default=1.0,
     )
 
     args = parser.parse_args()
 
-    global METHOD_LABEL
-    METHOD_LABEL = args.method_label
-    if args.samples < 10:
-        raise ValueError("--samples must be at least 10")
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    ref_raw, ref_t = load_reference(args.bag_dir, args.reference_topic)
-    est_raw, est_t = load_vins_csv(args.vins_csv)
-    print(f"[INFO] Reference samples: {len(ref_raw)}")
-    print(f"[INFO] VINS samples:      {len(est_raw)}")
-
-    ref_zero, est_zero = ref_raw - ref_raw[0], est_raw - est_raw[0]
-    plot_xy(ref_zero, est_zero, args.output_dir / "01_xy_start_normalized.png",
-            "Start-normalized trajectories without rotational alignment")
-
-    count = min(args.samples, len(ref_raw), len(est_raw))
-    ref, est, progress, association = associate(
-        ref_zero, ref_t, est_zero, est_t, args.association, count
+    ref_t, ref_p, ref_q = load_reference(
+        args.bag_dir,
+        args.reference_topic,
     )
-    est_aligned, rotation, translation = rigid_alignment(est, ref)
-    values, error, vector = metrics(ref, est_aligned, ref_zero, est_zero)
-    scale = scale_diagnostic(est, ref)
-    values.update({
-        "similarity_scale_diagnostic": scale,
-        "reference_samples": float(len(ref_raw)),
-        "vins_samples": float(len(est_raw)),
-        "compared_samples": float(count),
-        "reference_duration_s": float(ref_t[-1]),
-        "vins_duration_s": float(est_t[-1]),
-    })
 
-    plot_xy(ref, est_aligned, args.output_dir / "02_xy_rigid_aligned.png",
-            "Rigid-aligned trajectories, scale fixed to 1.0")
-    plot_3d(ref, est_aligned, args.output_dir / "03_xyz_rigid_aligned.png")
-    plot_coordinates(ref, est_aligned, progress, args.output_dir / "04_coordinates_over_progress.png")
-    plot_error(progress, error, args.output_dir / "05_position_error_over_progress.png")
-    plot_axis_error(progress, vector, args.output_dir / "06_axis_errors_over_progress.png")
+    est_t, est_p, est_q = load_estimate(
+        args.estimate_csv,
+        args.format,
+    )
 
-    (args.output_dir / "metrics.json").write_text(json.dumps(values, indent=2), encoding="utf-8")
-    write_csv(args.output_dir / "metrics.csv", values)
-    write_matches(args.output_dir / "matched_trajectory_errors.csv", progress, ref, est_aligned, error, vector)
+    print(
+        f"[INFO] Reference time: "
+        f"{ref_t[0]:.6f} .. {ref_t[-1]:.6f}"
+    )
+    print(
+        f"[INFO] Estimate time:  "
+        f"{est_t[0]:.6f} .. {est_t[-1]:.6f}"
+    )
 
-    with (args.output_dir / "comparison_report.txt").open("w", encoding="utf-8") as f:
-        report_title = f"{METHOD_LABEL} comparison"
-        f.write(report_title + "\n")
-        f.write("=" * len(report_title) + "\n\n")
-        f.write(f"Reference topic: {args.reference_topic}\n")
-        f.write(f"Association: {association}\n")
-        f.write("Alignment: rigid 3D alignment with scale fixed to 1.0\n\n")
-        for key, value in values.items():
-            f.write(f"{key}: {value:.9f}\n")
-        f.write("\nRotation matrix:\n" + np.array2string(rotation, precision=9))
-        f.write("\n\nTranslation vector:\n" + np.array2string(translation, precision=9) + "\n")
+    times, ref_p, ref_q, est_p, est_q = associate_by_time(
+        ref_t, ref_p, ref_q,
+        est_t, est_p, est_q,
+        args.samples,
+    )
 
-    write_html(args.output_dir / "trajectory_comparison.html", values,
-               len(ref_raw), len(est_raw), count, association, scale)
+    scale = scale_diagnostic(est_p, ref_p)
 
-    print(f"[OK] Results: {args.output_dir}")
-    print(f"[OK] HTML: {args.output_dir / 'trajectory_comparison.html'}")
-    print(f"ATE RMSE: {values['ate_rmse_m']:.3f} m")
-    print(f"Endpoint error: {values['endpoint_error_m']:.3f} m")
-    print(f"Scale diagnostic: {scale:.3f}")
+    est_p, alignment_rotation = align_positions(
+        est_p,
+        ref_p,
+        args.alignment,
+    )
+
+    est_q = align_quaternions(
+        est_q,
+        alignment_rotation,
+    )
+
+    position_errors = np.linalg.norm(
+        est_p - ref_p,
+        axis=1,
+    )
+
+    ate_rmse = float(
+        np.sqrt(np.mean(position_errors ** 2))
+    )
+
+    endpoint_error = float(position_errors[-1])
+
+    rpe_translation, rpe_rotation = calculate_rpe(
+        times,
+        ref_p,
+        ref_q,
+        est_p,
+        est_q,
+        args.rpe_delta_s,
+    )
+
+    metrics = {
+        "ate_rmse_m": ate_rmse,
+        "rpe_translation_rmse_m": rpe_translation,
+        "rpe_rotation_rmse_deg": rpe_rotation,
+        "endpoint_error_m": endpoint_error,
+        "scale_diagnostic": scale,
+        "compared_samples": float(len(times)),
+        "comparison_duration_s": float(times[-1] - times[0]),
+    }
+
+    write_metrics(
+        args.output_dir / "metrics.csv",
+        metrics,
+    )
+
+    write_trajectory(
+        args.output_dir / "trajectory.csv",
+        times,
+        ref_p,
+        est_p,
+        position_errors,
+    )
+
+    plot_trajectory(
+        ref_p,
+        est_p,
+        args.method_label,
+        args.output_dir / "trajectory_xy.png",
+    )
+
+    plot_error(
+        times,
+        position_errors,
+        args.method_label,
+        args.output_dir / "error.png",
+    )
+
+    print()
+    print(f"[OK] {args.method_label}")
+    print(f"ATE RMSE:        {ate_rmse:.3f} m")
+    print(f"RPE translation: {rpe_translation:.3f} m")
+    print(f"RPE rotation:    {rpe_rotation:.3f} deg")
+    print(f"Endpoint error:  {endpoint_error:.3f} m")
+    print(f"Scale:           {scale:.3f}")
+    print(f"Output:          {args.output_dir}")
 
 
 if __name__ == "__main__":

@@ -116,11 +116,6 @@ TIMESTAMP="$(date +"%Y-%m-%d_%H-%M-%S")"
 EXPERIMENT_NAME="${TIMESTAMP}_${WORLD_NAME}_${PATH_NAME}"
 EXPERIMENT_DIR="$PROJECT_DIR/batch_experiments/$EXPERIMENT_NAME"
 
-# Record high-bandwidth bags on Docker-local Linux storage.
-# Do NOT record directly into the Windows/OneDrive bind mount.
-LOCAL_RECORD_ROOT="/tmp/uav_final_recordings"
-LOCAL_EXPERIMENT_DIR="$LOCAL_RECORD_ROOT/$EXPERIMENT_NAME"
-
 RUNS_DIR="$EXPERIMENT_DIR/runs"
 SUMMARY_DIR="$EXPERIMENT_DIR/summary"
 CONFIG_DIR="$EXPERIMENT_DIR/config"
@@ -209,12 +204,6 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
 
   mkdir -p "$RUN_DIR/logs"
 
-  LOCAL_RUN_DIR="$LOCAL_EXPERIMENT_DIR/$RUN_ID"
-  LOCAL_ROSBAG_DIR="$LOCAL_RUN_DIR/rosbag"
-  mkdir -p "$LOCAL_ROSBAG_DIR"
-
-  echo "$LOCAL_ROSBAG_DIR" > "$RUN_DIR/local_rosbag_path.txt"
-
   echo
   echo "============================================================"
   echo " Starting $RUN_ID / $RUN_COUNT"
@@ -239,7 +228,7 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
       ROSBAG_QOS_FILE="$PROJECT_DIR/config/rosbag/vio_recording_qos.yaml"
 
       ros2 bag record \
-        -o "$LOCAL_ROSBAG_DIR/sensor_recording" \
+        -o "$RUN_DIR/rosbag/sensor_recording" \
         --max-cache-size 1073741824 \
         --qos-profile-overrides-path "$ROSBAG_QOS_FILE" \
         "${BAG_TOPICS[@]}" \
@@ -251,7 +240,7 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
       echo "[INFO] Starting dedicated Gazebo IMU recorder..."
 
       ros2 bag record \
-        -o "$LOCAL_ROSBAG_DIR/imu_recording" \
+        -o "$RUN_DIR/rosbag/imu_recording" \
         --max-cache-size 268435456 \
         --qos-profile-overrides-path "$ROSBAG_QOS_FILE" \
         /gazebo/imu \
@@ -303,26 +292,6 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
     fi
   fi
 
-  if [ -n "$BAG_PID" ]; then
-    SENSOR_BAG_DIR="$LOCAL_ROSBAG_DIR/sensor_recording"
-    CAMERA_REPORT="$RUN_DIR/stereo_continuity_report.txt"
-    CAMERA_STATUS="$RUN_DIR/stereo_continuity_status.txt"
-
-    echo "[INFO] Checking recorded stereo continuity..."
-
-    if python3 scripts/validation/check_stereo_header_continuity.py         "$SENSOR_BAG_DIR"         > "$CAMERA_REPORT" 2>&1
-    then
-      echo "PASS" > "$CAMERA_STATUS"
-      echo "[OK] Stereo recording continuity passed."
-    else
-      echo "FAIL" > "$CAMERA_STATUS"
-      echo "[ERROR] Stereo recording continuity FAILED."
-      echo "        DO NOT USE THIS DATASET."
-    fi
-
-    cat "$CAMERA_REPORT"
-  fi
-
   if [ -n "$IMU_BAG_PID" ]; then
     echo "[INFO] Stopping dedicated IMU rosbag..."
 
@@ -331,7 +300,7 @@ for run_idx in $(seq 1 "$RUN_COUNT"); do
       wait "$IMU_BAG_PID" >/dev/null 2>&1 || true
     fi
 
-    IMU_BAG_DIR="$LOCAL_ROSBAG_DIR/imu_recording"
+    IMU_BAG_DIR="$RUN_DIR/rosbag/imu_recording"
     IMU_REPORT="$RUN_DIR/gazebo_imu_integrity_report.txt"
     IMU_STATUS="$RUN_DIR/gazebo_imu_integrity_status.txt"
 

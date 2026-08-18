@@ -56,3 +56,6 @@ Thumbs.db
 # Generated SuperVINS results
 supervins_output/
 supervins_results/
+
+# Temporary final-evaluation test outputs
+final_test_outputs/

@@ -177,18 +177,55 @@ def generate_segment_path(spec):
         elif "arc" in item:
             arc = item.get("arc", {})
             radius = float(arc.get("radius_m", 1.0))
-            angle = float(arc.get("angle_deg", 90.0))
+            angle_deg = float(arc.get("angle_deg", 90.0))
             direction = str(arc.get("direction", "left")).lower()
 
-            pos, heading_rad = add_arc(
-                points,
-                pos,
-                heading_rad,
-                radius,
-                angle,
-                direction,
-                step_size_m,
-            )
+            sign = 1.0 if direction in ["left", "ccw"] else -1.0
+            angle_rad = abs(deg_to_rad(angle_deg))
+
+            center_offset_x = arc.get("center_offset_x_m", None)
+            center_offset_y = arc.get("center_offset_y_m", None)
+
+            if center_offset_x is not None and center_offset_y is not None:
+                center = pos + np.array([
+                    float(center_offset_x),
+                    float(center_offset_y),
+                    0.0,
+                ])
+
+                radial_start = pos - center
+                start_angle = math.atan2(radial_start[1], radial_start[0])
+
+                arc_length = radius * angle_rad
+                samples = max(2, int(math.ceil(arc_length / step_size_m)))
+
+                for a in np.linspace(
+                    start_angle,
+                    start_angle + sign * angle_rad,
+                    samples + 1,
+                )[1:]:
+                    p_arc = np.array([
+                        center[0] + radius * math.cos(a),
+                        center[1] + radius * math.sin(a),
+                        pos[2],
+                    ])
+                    points.append(p_arc)
+
+                pos = points[-1].copy()
+                heading_rad = wrap_angle(
+                    heading_rad + sign * angle_rad
+                )
+
+            else:
+                pos, heading_rad = add_arc(
+                    points,
+                    pos,
+                    heading_rad,
+                    radius,
+                    angle_deg,
+                    direction,
+                    step_size_m,
+                )
 
         # Format:
         # - hold:

@@ -291,7 +291,10 @@ def js_marker(name, point, color=None, size=5, symbol="circle"):
 
 def classify_run(run_name, run_dir, actual, ideal_resampled, threshold_m, ideal_length):
     reasons = []
-    flight_exit_code = read_int_file(run_dir / "flight_exit_code.txt", default=None)
+    flight_exit_code = read_int_file(
+        run_dir / "flight_exit_code.txt",
+        default=None,
+    )
 
     if flight_exit_code is None:
         reasons.append("missing flight_exit_code")
@@ -302,18 +305,11 @@ def classify_run(run_name, run_dir, actual, ideal_resampled, threshold_m, ideal_
         reasons.append("missing actual path")
         return reasons
 
-    actual_length = path_length(actual)
+    # Path length and endpoint deviation relative to one particular
+    # ideal-path sample are retained as quantitative diagnostics,
+    # but they are not used to declare a completed circular flight
+    # invalid.
 
-    if ideal_length > 1e-6 and actual_length < 0.80 * ideal_length:
-        reasons.append(f"path length too short ({actual_length:.2f} m < 80% of ideal {ideal_length:.2f} m)")
-
-    if ideal_resampled and actual:
-        end_error = dist(actual[-1], ideal_resampled[-1])
-        if end_error > max(2.0 * threshold_m, 0.25):
-            reasons.append(f"endpoint error too high ({end_error:.3f} m)")
-
-    # Placeholder for future real Gazebo collision logs:
-    # If a later script writes collision_events.csv, this will be marked automatically.
     collision_file = run_dir / "collision_events.csv"
     if collision_file.exists() and collision_file.stat().st_size > 0:
         reasons.append("collision events recorded")

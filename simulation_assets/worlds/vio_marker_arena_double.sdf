@@ -1,0 +1,3944 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <world name="vio_marker_arena_double">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic" />
+    <scene>
+      <grid>false</grid>
+      <ambient>0.65 0.65 0.65 1</ambient>
+      <background>0.72 0.78 0.86 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1 1</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode />
+            </friction>
+            <bounce />
+            <contact />
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>500 500</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+        <pose>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
+      <pose>0 0 0 0 -0 0</pose>
+      <self_collide>false</self_collide>
+    </model>
+    <light name="sunUTC" type="directional">
+      <pose>0 0 500 0 -0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <intensity>1</intensity>
+      <direction>0.001 0.625 -0.78</direction>
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+      <specular>0.271 0.271 0.271 1</specular>
+      <attenuation>
+        <range>2000</range>
+        <linear>0</linear>
+        <constant>1</constant>
+        <quadratic>0</quadratic>
+      </attenuation>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>0</outer_angle>
+        <falloff>0</falloff>
+      </spot>
+    </light>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg> 8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+    <model name="visual_grid">
+      <static>true</static>
+      <pose>0 0 0.01 0 0 0</pose>
+      <link name="grid_link">
+        <visual name="x_line_1">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+          </material>
+        </visual>
+        <visual name="y_line_1">
+          <pose>0 0 0 0 0 1.5708</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+          </material>
+        </visual>
+        <visual name="x_line_5">
+          <pose>0 5 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+        <visual name="x_line_minus5">
+          <pose>0 -5 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+        <visual name="y_line_5">
+          <pose>5 0 0 0 0 1.5708</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+        <visual name="y_line_minus5">
+          <pose>-5 0 0 0 0 1.5708</pose>
+          <geometry>
+            <box>
+              <size>50 0.02 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_wall_north">
+      <static>true</static>
+      <pose>0.0000 10.0000 2.0000 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>20.0000 0.1500 4.0000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>20.0000 0.1500 4.0000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.720 0.720 0.720 1.000</ambient>
+            <diffuse>0.720 0.720 0.720 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_wall_south">
+      <static>true</static>
+      <pose>0.0000 -10.0000 2.0000 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>20.0000 0.1500 4.0000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>20.0000 0.1500 4.0000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.720 0.720 0.720 1.000</ambient>
+            <diffuse>0.720 0.720 0.720 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_wall_east">
+      <static>true</static>
+      <pose>10.0000 0.0000 2.0000 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1500 20.0000 4.0000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1500 20.0000 4.0000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.720 0.720 0.720 1.000</ambient>
+            <diffuse>0.720 0.720 0.720 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_wall_west">
+      <static>true</static>
+      <pose>-10.0000 0.0000 2.0000 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1500 20.0000 4.0000</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1500 20.0000 4.0000</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.720 0.720 0.720 1.000</ambient>
+            <diffuse>0.720 0.720 0.720 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_0">
+      <static>true</static>
+      <pose>-8.0000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_1">
+      <static>true</static>
+      <pose>-5.4000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_2">
+      <static>true</static>
+      <pose>-2.7000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_3">
+      <static>true</static>
+      <pose>0.0000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_4">
+      <static>true</static>
+      <pose>2.7000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_5">
+      <static>true</static>
+      <pose>5.4000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_0_6">
+      <static>true</static>
+      <pose>8.0000 9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_0">
+      <static>true</static>
+      <pose>-8.0000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_1">
+      <static>true</static>
+      <pose>-5.4000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_2">
+      <static>true</static>
+      <pose>-2.7000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_3">
+      <static>true</static>
+      <pose>0.0000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_4">
+      <static>true</static>
+      <pose>2.7000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_5">
+      <static>true</static>
+      <pose>5.4000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_1_6">
+      <static>true</static>
+      <pose>8.0000 9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_0">
+      <static>true</static>
+      <pose>-8.0000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_1">
+      <static>true</static>
+      <pose>-5.4000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_2">
+      <static>true</static>
+      <pose>-2.7000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_3">
+      <static>true</static>
+      <pose>0.0000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_4">
+      <static>true</static>
+      <pose>2.7000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_5">
+      <static>true</static>
+      <pose>5.4000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_2_6">
+      <static>true</static>
+      <pose>8.0000 9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_0">
+      <static>true</static>
+      <pose>-8.0000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_1">
+      <static>true</static>
+      <pose>-5.4000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_2">
+      <static>true</static>
+      <pose>-2.7000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_3">
+      <static>true</static>
+      <pose>0.0000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_4">
+      <static>true</static>
+      <pose>2.7000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_5">
+      <static>true</static>
+      <pose>5.4000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_north_3_6">
+      <static>true</static>
+      <pose>8.0000 9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_0">
+      <static>true</static>
+      <pose>-8.0000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_1">
+      <static>true</static>
+      <pose>-5.4000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_2">
+      <static>true</static>
+      <pose>-2.7000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_3">
+      <static>true</static>
+      <pose>0.0000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_4">
+      <static>true</static>
+      <pose>2.7000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_5">
+      <static>true</static>
+      <pose>5.4000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_0_6">
+      <static>true</static>
+      <pose>8.0000 -9.9190 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_0">
+      <static>true</static>
+      <pose>-8.0000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_1">
+      <static>true</static>
+      <pose>-5.4000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_2">
+      <static>true</static>
+      <pose>-2.7000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_3">
+      <static>true</static>
+      <pose>0.0000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_4">
+      <static>true</static>
+      <pose>2.7000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_5">
+      <static>true</static>
+      <pose>5.4000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_1_6">
+      <static>true</static>
+      <pose>8.0000 -9.9190 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_0">
+      <static>true</static>
+      <pose>-8.0000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_1">
+      <static>true</static>
+      <pose>-5.4000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_2">
+      <static>true</static>
+      <pose>-2.7000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_3">
+      <static>true</static>
+      <pose>0.0000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_4">
+      <static>true</static>
+      <pose>2.7000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_5">
+      <static>true</static>
+      <pose>5.4000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_2_6">
+      <static>true</static>
+      <pose>8.0000 -9.9190 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_0">
+      <static>true</static>
+      <pose>-8.0000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_1">
+      <static>true</static>
+      <pose>-5.4000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_2">
+      <static>true</static>
+      <pose>-2.7000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_3">
+      <static>true</static>
+      <pose>0.0000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8900 0.0350 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_4">
+      <static>true</static>
+      <pose>2.7000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0100 0.0350 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_5">
+      <static>true</static>
+      <pose>5.4000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6500 0.0350 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_south_3_6">
+      <static>true</static>
+      <pose>8.0000 -9.9190 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7700 0.0350 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_0">
+      <static>true</static>
+      <pose>9.9190 -8.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_1">
+      <static>true</static>
+      <pose>9.9190 -5.4000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_2">
+      <static>true</static>
+      <pose>9.9190 -2.7000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_3">
+      <static>true</static>
+      <pose>9.9190 0.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_4">
+      <static>true</static>
+      <pose>9.9190 2.7000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_5">
+      <static>true</static>
+      <pose>9.9190 5.4000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_0_6">
+      <static>true</static>
+      <pose>9.9190 8.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_0">
+      <static>true</static>
+      <pose>9.9190 -8.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_1">
+      <static>true</static>
+      <pose>9.9190 -5.4000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_2">
+      <static>true</static>
+      <pose>9.9190 -2.7000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_3">
+      <static>true</static>
+      <pose>9.9190 0.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_4">
+      <static>true</static>
+      <pose>9.9190 2.7000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_5">
+      <static>true</static>
+      <pose>9.9190 5.4000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_1_6">
+      <static>true</static>
+      <pose>9.9190 8.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_0">
+      <static>true</static>
+      <pose>9.9190 -8.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_1">
+      <static>true</static>
+      <pose>9.9190 -5.4000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_2">
+      <static>true</static>
+      <pose>9.9190 -2.7000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_3">
+      <static>true</static>
+      <pose>9.9190 0.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_4">
+      <static>true</static>
+      <pose>9.9190 2.7000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_5">
+      <static>true</static>
+      <pose>9.9190 5.4000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_2_6">
+      <static>true</static>
+      <pose>9.9190 8.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_0">
+      <static>true</static>
+      <pose>9.9190 -8.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_1">
+      <static>true</static>
+      <pose>9.9190 -5.4000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_2">
+      <static>true</static>
+      <pose>9.9190 -2.7000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_3">
+      <static>true</static>
+      <pose>9.9190 0.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_4">
+      <static>true</static>
+      <pose>9.9190 2.7000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_5">
+      <static>true</static>
+      <pose>9.9190 5.4000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_east_3_6">
+      <static>true</static>
+      <pose>9.9190 8.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_0">
+      <static>true</static>
+      <pose>-9.9190 -8.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_1">
+      <static>true</static>
+      <pose>-9.9190 -5.4000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_2">
+      <static>true</static>
+      <pose>-9.9190 -2.7000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_3">
+      <static>true</static>
+      <pose>-9.9190 0.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_4">
+      <static>true</static>
+      <pose>-9.9190 2.7000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_5">
+      <static>true</static>
+      <pose>-9.9190 5.4000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_0_6">
+      <static>true</static>
+      <pose>-9.9190 8.0000 0.6500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_0">
+      <static>true</static>
+      <pose>-9.9190 -8.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_1">
+      <static>true</static>
+      <pose>-9.9190 -5.4000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_2">
+      <static>true</static>
+      <pose>-9.9190 -2.7000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_3">
+      <static>true</static>
+      <pose>-9.9190 0.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_4">
+      <static>true</static>
+      <pose>-9.9190 2.7000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_5">
+      <static>true</static>
+      <pose>-9.9190 5.4000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_1_6">
+      <static>true</static>
+      <pose>-9.9190 8.0000 1.3500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_0">
+      <static>true</static>
+      <pose>-9.9190 -8.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_1">
+      <static>true</static>
+      <pose>-9.9190 -5.4000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_2">
+      <static>true</static>
+      <pose>-9.9190 -2.7000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_3">
+      <static>true</static>
+      <pose>-9.9190 0.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_4">
+      <static>true</static>
+      <pose>-9.9190 2.7000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_5">
+      <static>true</static>
+      <pose>-9.9190 5.4000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_2_6">
+      <static>true</static>
+      <pose>-9.9190 8.0000 2.1500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_0">
+      <static>true</static>
+      <pose>-9.9190 -8.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_1">
+      <static>true</static>
+      <pose>-9.9190 -5.4000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_2">
+      <static>true</static>
+      <pose>-9.9190 -2.7000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_3">
+      <static>true</static>
+      <pose>-9.9190 0.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.8900 0.4500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_4">
+      <static>true</static>
+      <pose>-9.9190 2.7000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 1.0100 0.5500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_5">
+      <static>true</static>
+      <pose>-9.9190 5.4000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.6500 0.6500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_panel_west_3_6">
+      <static>true</static>
+      <pose>-9.9190 8.0000 3.0500 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.0350 0.7700 0.3500</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_00">
+      <static>true</static>
+      <pose>7.6000 0.0000 0.0120 0.0000 0.0000 0.7854</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_01">
+      <static>true</static>
+      <pose>7.4540 1.4827 0.0120 0.0000 0.0000 0.9817</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_02">
+      <static>true</static>
+      <pose>7.0215 2.9084 0.0120 0.0000 0.0000 1.1781</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_03">
+      <static>true</static>
+      <pose>6.3192 4.2223 0.0120 0.0000 0.0000 1.3744</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_04">
+      <static>true</static>
+      <pose>5.3740 5.3740 0.0120 0.0000 0.0000 1.5708</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_05">
+      <static>true</static>
+      <pose>4.2223 6.3192 0.0120 0.0000 0.0000 1.7671</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_06">
+      <static>true</static>
+      <pose>2.9084 7.0215 0.0120 0.0000 0.0000 1.9635</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_07">
+      <static>true</static>
+      <pose>1.4827 7.4540 0.0120 0.0000 0.0000 2.1598</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_08">
+      <static>true</static>
+      <pose>0.0000 7.6000 0.0120 0.0000 0.0000 2.3562</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_09">
+      <static>true</static>
+      <pose>-1.4827 7.4540 0.0120 0.0000 0.0000 2.5525</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_10">
+      <static>true</static>
+      <pose>-2.9084 7.0215 0.0120 0.0000 0.0000 2.7489</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_11">
+      <static>true</static>
+      <pose>-4.2223 6.3192 0.0120 0.0000 0.0000 2.9452</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_12">
+      <static>true</static>
+      <pose>-5.3740 5.3740 0.0120 0.0000 0.0000 3.1416</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_13">
+      <static>true</static>
+      <pose>-6.3192 4.2223 0.0120 0.0000 0.0000 3.3379</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_14">
+      <static>true</static>
+      <pose>-7.0215 2.9084 0.0120 0.0000 0.0000 3.5343</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_15">
+      <static>true</static>
+      <pose>-7.4540 1.4827 0.0120 0.0000 0.0000 3.7306</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_16">
+      <static>true</static>
+      <pose>-7.6000 0.0000 0.0120 0.0000 0.0000 3.9270</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_17">
+      <static>true</static>
+      <pose>-7.4540 -1.4827 0.0120 0.0000 0.0000 4.1233</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_18">
+      <static>true</static>
+      <pose>-7.0215 -2.9084 0.0120 0.0000 0.0000 4.3197</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_19">
+      <static>true</static>
+      <pose>-6.3192 -4.2223 0.0120 0.0000 0.0000 4.5160</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_20">
+      <static>true</static>
+      <pose>-5.3740 -5.3740 0.0120 0.0000 0.0000 4.7124</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_21">
+      <static>true</static>
+      <pose>-4.2223 -6.3192 0.0120 0.0000 0.0000 4.9087</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_22">
+      <static>true</static>
+      <pose>-2.9084 -7.0215 0.0120 0.0000 0.0000 5.1051</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_23">
+      <static>true</static>
+      <pose>-1.4827 -7.4540 0.0120 0.0000 0.0000 5.3014</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_24">
+      <static>true</static>
+      <pose>-0.0000 -7.6000 0.0120 0.0000 0.0000 5.4978</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_25">
+      <static>true</static>
+      <pose>1.4827 -7.4540 0.0120 0.0000 0.0000 5.6941</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_26">
+      <static>true</static>
+      <pose>2.9084 -7.0215 0.0120 0.0000 0.0000 5.8905</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_27">
+      <static>true</static>
+      <pose>4.2223 -6.3192 0.0120 0.0000 0.0000 6.0868</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_28">
+      <static>true</static>
+      <pose>5.3740 -5.3740 0.0120 0.0000 0.0000 6.2832</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_29">
+      <static>true</static>
+      <pose>6.3192 -4.2223 0.0120 0.0000 0.0000 6.4795</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_30">
+      <static>true</static>
+      <pose>7.0215 -2.9084 0.0120 0.0000 0.0000 6.6759</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_31">
+      <static>true</static>
+      <pose>7.4540 -1.4827 0.0120 0.0000 0.0000 6.8722</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_target">
+      <static>true</static>
+      <pose>0.0000 0.0000 0.0120 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.8500</radius>
+              <length>0.0200</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.950 0.950 0.950 1.000</ambient>
+            <diffuse>0.950 0.950 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_0">
+      <static>true</static>
+      <pose>1.2000 0.0000 0.0130 0.0000 0.0000 0.0000</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_1">
+      <static>true</static>
+      <pose>0.8485 0.8485 0.0130 0.0000 0.0000 0.7854</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_2">
+      <static>true</static>
+      <pose>0.0000 1.2000 0.0130 0.0000 0.0000 1.5708</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_3">
+      <static>true</static>
+      <pose>-0.8485 0.8485 0.0130 0.0000 0.0000 2.3562</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_4">
+      <static>true</static>
+      <pose>-1.2000 0.0000 0.0130 0.0000 0.0000 3.1416</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_5">
+      <static>true</static>
+      <pose>-0.8485 -0.8485 0.0130 0.0000 0.0000 3.9270</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_6">
+      <static>true</static>
+      <pose>-0.0000 -1.2000 0.0130 0.0000 0.0000 4.7124</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_7">
+      <static>true</static>
+      <pose>0.8485 -0.8485 0.0130 0.0000 0.0000 5.4978</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_00">
+      <static>true</static>
+      <pose>7.5634 0.7449 0.0120 0.0000 0.0000 0.8836</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_01">
+      <static>true</static>
+      <pose>7.2727 2.2062 0.0120 0.0000 0.0000 1.0799</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_02">
+      <static>true</static>
+      <pose>6.7026 3.5826 0.0120 0.0000 0.0000 1.2763</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_03">
+      <static>true</static>
+      <pose>5.8749 4.8214 0.0120 0.0000 0.0000 1.4726</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_04">
+      <static>true</static>
+      <pose>4.8214 5.8749 0.0120 0.0000 0.0000 1.6690</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_05">
+      <static>true</static>
+      <pose>3.5826 6.7026 0.0120 0.0000 0.0000 1.8653</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_06">
+      <static>true</static>
+      <pose>2.2062 7.2727 0.0120 0.0000 0.0000 2.0617</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_07">
+      <static>true</static>
+      <pose>0.7449 7.5634 0.0120 0.0000 0.0000 2.2580</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_08">
+      <static>true</static>
+      <pose>-0.7449 7.5634 0.0120 0.0000 0.0000 2.4544</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_09">
+      <static>true</static>
+      <pose>-2.2062 7.2727 0.0120 0.0000 0.0000 2.6507</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_10">
+      <static>true</static>
+      <pose>-3.5826 6.7026 0.0120 0.0000 0.0000 2.8471</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_11">
+      <static>true</static>
+      <pose>-4.8214 5.8749 0.0120 0.0000 0.0000 3.0434</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_12">
+      <static>true</static>
+      <pose>-5.8749 4.8214 0.0120 0.0000 0.0000 3.2398</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_13">
+      <static>true</static>
+      <pose>-6.7026 3.5826 0.0120 0.0000 0.0000 3.4361</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_14">
+      <static>true</static>
+      <pose>-7.2727 2.2062 0.0120 0.0000 0.0000 3.6325</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_15">
+      <static>true</static>
+      <pose>-7.5634 0.7449 0.0120 0.0000 0.0000 3.8288</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_16">
+      <static>true</static>
+      <pose>-7.5634 -0.7449 0.0120 0.0000 0.0000 4.0252</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_17">
+      <static>true</static>
+      <pose>-7.2727 -2.2062 0.0120 0.0000 0.0000 4.2215</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_18">
+      <static>true</static>
+      <pose>-6.7026 -3.5826 0.0120 0.0000 0.0000 4.4179</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_19">
+      <static>true</static>
+      <pose>-5.8749 -4.8214 0.0120 0.0000 0.0000 4.6142</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_20">
+      <static>true</static>
+      <pose>-4.8214 -5.8749 0.0120 0.0000 0.0000 4.8106</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_21">
+      <static>true</static>
+      <pose>-3.5826 -6.7026 0.0120 0.0000 0.0000 5.0069</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_22">
+      <static>true</static>
+      <pose>-2.2062 -7.2727 0.0120 0.0000 0.0000 5.2033</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_23">
+      <static>true</static>
+      <pose>-0.7449 -7.5634 0.0120 0.0000 0.0000 5.3996</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_24">
+      <static>true</static>
+      <pose>0.7449 -7.5634 0.0120 0.0000 0.0000 5.5960</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.450 0.850 0.120 1.000</ambient>
+            <diffuse>0.450 0.850 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_25">
+      <static>true</static>
+      <pose>2.2062 -7.2727 0.0120 0.0000 0.0000 5.7923</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_26">
+      <static>true</static>
+      <pose>3.5826 -6.7026 0.0120 0.0000 0.0000 5.9887</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_27">
+      <static>true</static>
+      <pose>4.8214 -5.8749 0.0120 0.0000 0.0000 6.1850</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.200 0.300 0.950 1.000</ambient>
+            <diffuse>0.200 0.300 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_28">
+      <static>true</static>
+      <pose>5.8749 -4.8214 0.0120 0.0000 0.0000 6.3814</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5500 0.5200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_29">
+      <static>true</static>
+      <pose>6.7026 -3.5826 0.0120 0.0000 0.0000 6.5777</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6700 0.6200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_30">
+      <static>true</static>
+      <pose>7.2727 -2.2062 0.0120 0.0000 0.0000 6.7741</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7900 0.3200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_floor_marker_extra_31">
+      <static>true</static>
+      <pose>7.5634 -0.7449 0.0120 0.0000 0.0000 6.9704</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.9100 0.4200 0.0180</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_0">
+      <static>true</static>
+      <pose>1.1087 0.4592 0.0130 0.0000 0.0000 0.3927</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.900 0.120 0.120 1.000</ambient>
+            <diffuse>0.900 0.120 0.120 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_1">
+      <static>true</static>
+      <pose>0.4592 1.1087 0.0130 0.0000 0.0000 1.1781</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.550 0.950 1.000</ambient>
+            <diffuse>0.120 0.550 0.950 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_2">
+      <static>true</static>
+      <pose>-0.4592 1.1087 0.0130 0.0000 0.0000 1.9635</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.120 0.800 0.280 1.000</ambient>
+            <diffuse>0.120 0.800 0.280 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_3">
+      <static>true</static>
+      <pose>-1.1087 0.4592 0.0130 0.0000 0.0000 2.7489</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.750 0.100 1.000</ambient>
+            <diffuse>0.950 0.750 0.100 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_4">
+      <static>true</static>
+      <pose>-1.1087 -0.4592 0.0130 0.0000 0.0000 3.5343</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.700 0.200 0.900 1.000</ambient>
+            <diffuse>0.700 0.200 0.900 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_5">
+      <static>true</static>
+      <pose>-0.4592 -1.1087 0.0130 0.0000 0.0000 4.3197</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.350 0.080 1.000</ambient>
+            <diffuse>0.950 0.350 0.080 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_6">
+      <static>true</static>
+      <pose>0.4592 -1.1087 0.0130 0.0000 0.0000 5.1051</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.050 0.750 0.750 1.000</ambient>
+            <diffuse>0.050 0.750 0.750 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="vio_center_marker_extra_7">
+      <static>true</static>
+      <pose>1.1087 -0.4592 0.0130 0.0000 0.0000 5.8905</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4500 0.2000 0.0200</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.950 0.250 0.600 1.000</ambient>
+            <diffuse>0.950 0.250 0.600 1.000</diffuse>
+            <specular>0.10 0.10 0.10 1</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

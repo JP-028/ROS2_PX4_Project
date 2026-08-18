@@ -418,7 +418,12 @@ class PathAnalyzer(Node):
         if not all(math.isfinite(v) for v in [x, y, z_ned]):
             return
 
-        t = time.time() - self.start_time
+        msg_time = float(msg.timestamp) * 1e-6
+
+        if not hasattr(self, "first_msg_time"):
+            self.first_msg_time = msg_time
+
+        t = msg_time - self.first_msg_time
         self.samples.append([t, x, y, z_ned])
 
     def save_results(self):
@@ -443,8 +448,15 @@ class PathAnalyzer(Node):
 
         ideal = generate_ideal_path(self.spec)
 
-        heading = estimate_initial_heading(actual)
-        ideal_aligned = rotate_xy(ideal, heading)
+        # segment_path specifications are already defined in the same local
+        # XY frame used by the executor. Do not infer and apply an additional
+        # heading rotation from the measured trajectory.
+        if str(self.spec.get("type", "")).lower() == "segment_path":
+            heading = 0.0
+            ideal_aligned = ideal.copy()
+        else:
+            heading = estimate_initial_heading(actual)
+            ideal_aligned = rotate_xy(ideal, heading)
 
         distances, nearest_idx = nearest_distances(actual, ideal_aligned)
 
@@ -553,7 +565,8 @@ def main():
     finally:
         node.save_results()
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 
@@ -565,9 +578,17 @@ def main():
 import sys as _sys_for_path_tools
 from pathlib import Path as _Path_for_path_tools
 
-_script_dir_for_path_tools = _Path_for_path_tools(__file__).resolve().parent
-if str(_script_dir_for_path_tools) not in _sys_for_path_tools.path:
-    _sys_for_path_tools.path.insert(0, str(_script_dir_for_path_tools))
+_flight_dir_for_path_tools = (
+    _Path_for_path_tools(__file__).resolve().parent.parent / "flight"
+)
+if str(_flight_dir_for_path_tools) not in _sys_for_path_tools.path:
+    _sys_for_path_tools.path.insert(0, str(_flight_dir_for_path_tools))
+
+_flight_dir_for_path_tools = _Path_for_path_tools(
+    "/home/user/ros2_ws/ROS2_PX4_Project/scripts/flight"
+)
+if str(_flight_dir_for_path_tools) not in _sys_for_path_tools.path:
+    _sys_for_path_tools.path.insert(0, str(_flight_dir_for_path_tools))
 
 from path_spec_tools import generate_ideal_path as generate_ideal_path
 
